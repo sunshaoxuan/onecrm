@@ -29,10 +29,10 @@ const App: React.FC = () => {
                                 <path clipRule="evenodd" d="M12.0799 24L4 19.2479L9.95537 8.75216L18.04 13.4961L18.0446 4H29.9554L29.96 13.4961L38.0446 8.75216L44 19.2479L35.92 24L44 28.7521L38.0446 39.2479L29.96 34.5039L29.9554 44H18.0446L18.04 34.5039L9.95537 39.2479L4 28.7521L12.0799 24Z" fill="currentColor" fillRule="evenodd"></path>
                             </svg>
                         </div>
-                        {/* Logo Branding: OneCRM with strict bottom alignment and refined scaling */}
-                        <div className="flex items-end font-black tracking-tighter leading-none">
+                        {/* Logo Branding: OneCRM with pixel-perfect baseline alignment and optical scaling */}
+                        <div className="flex items-baseline font-black tracking-tighter leading-none">
                             <span className="text-xl md:text-3xl uppercase">O</span>
-                            <span className="text-[18px] md:text-[27px] lowercase px-[0.02em]">ne</span>
+                            <span className="text-[19px] md:text-[28.5px] lowercase px-[0.02em] transform translate-y-[-3px] md:translate-y-[-4.5px]">ne</span>
                             <span className="text-xl md:text-3xl uppercase">CRM</span>
                         </div>
                     </div>
