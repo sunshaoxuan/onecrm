@@ -1,10 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ConfigProvider } from 'antd';
 
 const App: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [remember, setRemember] = useState(false);
+    const [currentSlide, setCurrentSlide] = useState(0);
+
+    const sliderImages = [
+        '/assets/slider/bridge01.jpg',
+        '/assets/slider/fujisann01.jpg',
+        '/assets/slider/link01.jpg',
+        '/assets/slider/sea01.jpg',
+        '/assets/slider/tokyo01.jpg',
+    ];
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCurrentSlide((prev) => (prev + 1) % sliderImages.length);
+        }, 5000);
+        return () => clearInterval(timer);
+    }, [sliderImages.length]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -49,15 +65,15 @@ const App: React.FC = () => {
                 </header>
 
                 <main className="flex-1 flex flex-col md:flex-row min-h-screen pt-16 md:pt-20">
-                    {/* Hero Section - Sunny & Positive (PC prioritized) */}
-                    <section className="relative w-full md:w-3/5 min-h-[40vh] md:min-h-screen flex flex-col justify-center px-6 sm:px-12 md:px-20 py-20 md:py-24 bg-[#F8FAFC] overflow-hidden">
+                    {/* Hero Section - Dynamic & Expansive (PC prioritized) */}
+                    <section className="relative w-full md:w-3/5 min-h-[50vh] md:min-h-screen flex flex-col px-6 sm:px-12 md:px-20 pt-20 md:pt-32 bg-[#F8FAFC] overflow-hidden">
                         <div className="absolute inset-0 z-0">
                             <div className="absolute top-[-5%] right-[-5%] w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-primary/10 rounded-full blur-[80px] md:blur-[140px]"></div>
-                            <div className="absolute bottom-[-5%] left-[-5%] w-[250px] md:w-[500px] h-[250px] md:h-[500px] bg-orange-400/5 rounded-full blur-[70px] md:blur-[120px]"></div>
                             {/* Simple Grid Background */}
                             <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#FD6C26 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
                         </div>
-                        <div className="relative z-10 max-w-2xl">
+
+                        <div className="relative z-20 max-w-2xl">
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/15 text-primary text-[9px] md:text-[10px] font-bold uppercase tracking-wider mb-6 md:mb-10">
                                 <span className="relative flex h-2 w-2">
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
@@ -72,30 +88,41 @@ const App: React.FC = () => {
                             <p className="text-slate-600 text-base md:text-2xl font-medium leading-relaxed mb-8 md:mb-16 max-w-lg">
                                 秩序が生まれ、未来の輪郭が立ち上がる
                             </p>
+                        </div>
 
-                            {/* Visual Asset - Light & Clean */}
-                            <div className="relative w-full aspect-video rounded-xl md:rounded-3xl overflow-hidden shadow-[0_32px_64px_-16px_rgba(253,108,38,0.15)] border border-slate-200 group bg-white p-2">
-                                <div className="absolute inset-0 m-2 rounded-[inherit] overflow-hidden">
+                        {/* Dynamic Image Slider - Bottom Spread Layout */}
+                        <div className="absolute bottom-0 left-0 w-full h-[35vh] md:h-[45vh] lg:h-[55vh] z-10">
+                            <div className="relative w-full h-full overflow-hidden">
+                                {sliderImages.map((src, index) => (
                                     <div
-                                        className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-105"
-                                        style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2426&auto=format&fit=crop")' }}
-                                    ></div>
-                                    <div className="absolute inset-0 bg-gradient-to-t from-white/40 to-transparent"></div>
-                                </div>
-                                <div className="absolute bottom-6 md:bottom-10 left-6 md:left-10 right-6 md:right-10 flex items-center justify-between z-10">
-                                    <div className="flex -space-x-2 md:-space-x-4">
-                                        {[1, 2, 3].map((i) => (
+                                        key={src}
+                                        className={`absolute inset-0 transition-opacity duration-[2000ms] ease-in-out ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
+                                    >
+                                        <div
+                                            className="w-full h-full bg-cover bg-center"
+                                            style={{ backgroundImage: `url("${src}")` }}
+                                        ></div>
+                                        {/* Gentle Vignette/Fade-out Overlays - Seamless integration with bg-[#F8FAFC] */}
+                                        <div className="absolute inset-0 bg-gradient-to-t from-[#F8FAFC] via-transparent to-transparent opacity-90"></div>
+                                        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#F8FAFC] to-transparent"></div>
+                                        <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-[#F8FAFC] to-transparent"></div>
+                                    </div>
+                                ))}
+
+                                {/* Floating Metrics Overlay */}
+                                <div className="absolute bottom-10 left-6 md:left-20 flex flex-col md:flex-row items-start md:items-center gap-4 z-20">
+                                    <div className="flex -space-x-3 md:-space-x-5">
+                                        {[1, 2, 3, 4].map((i) => (
                                             <img
                                                 key={i}
                                                 alt="User"
-                                                className="w-8 h-8 md:w-12 md:h-12 rounded-full border-2 border-white shadow-md"
-                                                src={`https://i.pravatar.cc/150?u=${i + 10}`}
+                                                className="w-10 h-10 md:w-16 md:h-16 rounded-full border-2 border-white shadow-xl"
+                                                src={`https://i.pravatar.cc/150?u=${i + 20}`}
                                             />
                                         ))}
-                                        <div className="w-8 h-8 md:w-12 md:h-12 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[9px] md:text-[11px] font-bold text-slate-600 tracking-tighter shadow-md">+2.4k</div>
                                     </div>
-                                    <div className="flex items-center gap-1.5 md:gap-3 text-slate-800 text-[10px] md:text-base font-bold bg-white/90 backdrop-blur-xl px-4 md:px-7 py-2 md:py-4 rounded-full border border-slate-100 shadow-xl">
-                                        <span className="material-symbols-outlined text-xs md:text-2xl text-primary">trending_up</span>
+                                    <div className="flex items-center gap-2 md:gap-4 text-slate-800 text-xs md:text-xl font-black bg-white/90 backdrop-blur-2xl px-5 md:px-10 py-3 md:py-6 rounded-2xl md:rounded-3xl border border-white/50 shadow-2xl">
+                                        <div className="w-1.5 h-1.5 md:w-3 md:h-3 rounded-full bg-primary animate-pulse"></div>
                                         <span>業務効率 42% 向上</span>
                                     </div>
                                 </div>
