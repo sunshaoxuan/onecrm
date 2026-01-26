@@ -67,31 +67,8 @@ const App: React.FC = () => {
                 <main className="flex-1 flex flex-col md:flex-row min-h-screen pt-16 md:pt-20">
                     {/* Hero Section - Dynamic & Expansive (PC prioritized) */}
                     <section className="relative w-full md:w-3/5 min-h-[50vh] md:min-h-screen flex flex-col px-6 sm:px-12 md:px-20 pt-20 md:pt-32 bg-[#F8FAFC] overflow-hidden">
+                        {/* Dynamic Image Slider - Full Background Layout */}
                         <div className="absolute inset-0 z-0">
-                            <div className="absolute top-[-5%] right-[-5%] w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-primary/10 rounded-full blur-[80px] md:blur-[140px]"></div>
-                            {/* Simple Grid Background */}
-                            <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#FD6C26 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
-                        </div>
-
-                        <div className="relative z-20 max-w-2xl">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/15 text-primary text-[9px] md:text-[10px] font-bold uppercase tracking-wider mb-6 md:mb-10">
-                                <span className="relative flex h-2 w-2">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                                </span>
-                                v3.0 Intelligent Update
-                            </div>
-                            <h1 className="text-slate-900 text-4xl sm:text-5xl md:text-7xl font-black leading-[1.1] tracking-tighter mb-6 md:mb-10">
-                                散らばる営みを<br />
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-[#ff9100]">ひとつの流れへ</span>
-                            </h1>
-                            <p className="text-slate-600 text-base md:text-2xl font-medium leading-relaxed mb-8 md:mb-16 max-w-lg">
-                                秩序が生まれ、未来の輪郭が立ち上がる
-                            </p>
-                        </div>
-
-                        {/* Dynamic Image Slider - Bottom Spread Layout */}
-                        <div className="absolute bottom-0 left-0 w-full h-[35vh] md:h-[45vh] lg:h-[55vh] z-10">
                             <div className="relative w-full h-full overflow-hidden">
                                 {sliderImages.map((src, index) => (
                                     <div
@@ -102,30 +79,51 @@ const App: React.FC = () => {
                                             className="w-full h-full bg-cover bg-center"
                                             style={{ backgroundImage: `url("${src}")` }}
                                         ></div>
-                                        {/* Gentle Vignette/Fade-out Overlays - Seamless integration with bg-[#F8FAFC] */}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-[#F8FAFC] via-transparent to-transparent opacity-90"></div>
-                                        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#F8FAFC] to-transparent"></div>
-                                        <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-[#F8FAFC] to-transparent"></div>
+                                        {/* Seamless Integration Overlays - Fading into #F8FAFC */}
+                                        <div className="absolute inset-0 bg-gradient-to-t from-[#F8FAFC]/50 via-transparent to-transparent"></div>
+                                        <div className="absolute inset-y-0 right-0 w-64 bg-gradient-to-l from-[#F8FAFC] to-transparent"></div>
+                                        <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-[#F8FAFC] to-transparent"></div>
                                     </div>
                                 ))}
 
-                                {/* Floating Metrics Overlay */}
-                                <div className="absolute bottom-10 left-6 md:left-20 flex flex-col md:flex-row items-start md:items-center gap-4 z-20">
-                                    <div className="flex -space-x-3 md:-space-x-5">
-                                        {[1, 2, 3, 4].map((i) => (
-                                            <img
-                                                key={i}
-                                                alt="User"
-                                                className="w-10 h-10 md:w-16 md:h-16 rounded-full border-2 border-white shadow-xl"
-                                                src={`https://i.pravatar.cc/150?u=${i + 20}`}
-                                            />
-                                        ))}
-                                    </div>
-                                    <div className="flex items-center gap-2 md:gap-4 text-slate-800 text-xs md:text-xl font-black bg-white/90 backdrop-blur-2xl px-5 md:px-10 py-3 md:py-6 rounded-2xl md:rounded-3xl border border-white/50 shadow-2xl">
-                                        <div className="w-1.5 h-1.5 md:w-3 md:h-3 rounded-full bg-primary animate-pulse"></div>
-                                        <span>業務効率 42% 向上</span>
-                                    </div>
-                                </div>
+                                {/* Subtle pattern layer on top of images for texture */}
+                                <div className="absolute inset-0 opacity-[0.05] z-10" style={{ backgroundImage: 'radial-gradient(#FD6C26 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
+                            </div>
+                        </div>
+
+                        <div className="relative z-20 max-w-2xl">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/15 text-primary text-[9px] md:text-[10px] font-bold uppercase tracking-wider mb-6 md:mb-10">
+                                <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                                </span>
+                                v3.0 Intelligent Update
+                            </div>
+                            <h1 className="text-slate-900 text-4xl sm:text-5xl md:text-7xl font-black leading-[1.1] tracking-tighter mb-6 md:mb-10" style={{ textShadow: '0 0 30px rgba(255,255,255,0.8), 0 0 10px rgba(255,255,255,0.4)' }}>
+                                散らばる営みを<br />
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-[#ff9100]">ひとつの流れへ</span>
+                            </h1>
+                            <p className="text-slate-700 text-base md:text-2xl font-bold leading-relaxed mb-8 md:mb-16 max-w-lg" style={{ textShadow: '0 0 20px rgba(255,255,255,0.9)' }}>
+                                秩序が生まれ、未来の輪郭が立ち上がる
+                            </p>
+                        </div>
+
+                        {/* Dynamic Image Slider - Bottom Spread Layout */}
+                        {/* Floating Metrics Overlay - Positioned for balance over the background */}
+                        <div className="absolute bottom-10 left-6 md:left-20 flex flex-col md:flex-row items-start md:items-center gap-4 z-20">
+                            <div className="flex -space-x-3 md:-space-x-5">
+                                {[1, 2, 3, 4].map((i) => (
+                                    <img
+                                        key={i}
+                                        alt="User"
+                                        className="w-10 h-10 md:w-16 md:h-16 rounded-full border-2 border-white shadow-xl"
+                                        src={`https://i.pravatar.cc/150?u=${i + 20}`}
+                                    />
+                                ))}
+                            </div>
+                            <div className="flex items-center gap-2 md:gap-4 text-slate-800 text-xs md:text-xl font-black bg-white/90 backdrop-blur-2xl px-5 md:px-10 py-3 md:py-6 rounded-2xl md:rounded-3xl border border-white/50 shadow-2xl">
+                                <div className="w-1.5 h-1.5 md:w-3 md:h-3 rounded-full bg-primary animate-pulse"></div>
+                                <span>業務効率 42% 向上</span>
                             </div>
                         </div>
                     </section>
