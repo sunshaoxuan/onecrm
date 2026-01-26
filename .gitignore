@@ -1,0 +1,32 @@
+# Standard .gitignore
+
+# Dependencies
+node_modules/
+.npm
+package-lock.json
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Build outputs
+dist/
+build/
+bin/
+obj/
+/out
+
+# Local settings
+.env.local
+.env.*.local
+
+# Temp
+C:\Users\X02851\.gemini\antigravity\brain\
+*.tmp
