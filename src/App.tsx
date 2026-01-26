@@ -79,10 +79,8 @@ const App: React.FC = () => {
                                             className="w-full h-full bg-cover bg-center"
                                             style={{ backgroundImage: `url("${src}")` }}
                                         ></div>
-                                        {/* Seamless Integration Overlays - Fading into #F8FAFC */}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-[#F8FAFC]/50 via-transparent to-transparent"></div>
-                                        <div className="absolute inset-y-0 right-0 w-64 bg-gradient-to-l from-[#F8FAFC] to-transparent"></div>
-                                        <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-[#F8FAFC] to-transparent"></div>
+                                        {/* Seamless Integration Overlays - Fading into #F8FAFC (Bottom Only) */}
+                                        <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#F8FAFC] to-transparent"></div>
                                     </div>
                                 ))}
 
