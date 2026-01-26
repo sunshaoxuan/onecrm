@@ -23,16 +23,18 @@ const App: React.FC = () => {
             <div className="bg-[#FFFFFF] font-display min-h-screen flex flex-col overflow-x-hidden text-slate-900">
                 {/* Header */}
                 <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-4 md:py-6 bg-white/80 backdrop-blur-md border-b border-slate-100 shadow-sm">
-                    <div className="flex items-center gap-3 md:gap-4 text-slate-900">
-                        <div className="size-8 md:size-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
-                            <svg className="size-5 md:size-6" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <div className="flex items-center gap-3 md:gap-4 text-slate-900 select-none">
+                        <div className="size-9 md:size-11 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/20 flex-shrink-0">
+                            <svg className="size-5 md:size-7" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
                                 <path clipRule="evenodd" d="M12.0799 24L4 19.2479L9.95537 8.75216L18.04 13.4961L18.0446 4H29.9554L29.96 13.4961L38.0446 8.75216L44 19.2479L35.92 24L44 28.7521L38.0446 39.2479L29.96 34.5039L29.9554 44H18.0446L18.04 34.5039L9.95537 39.2479L4 28.7521L12.0799 24Z" fill="currentColor" fillRule="evenodd"></path>
                             </svg>
                         </div>
-                        {/* Logo Branding: OneCRM with perfected alignment and scaling */}
-                        <h2 className="text-xl md:text-2xl lg:text-3xl font-black leading-none tracking-tighter uppercase flex items-center select-none">
-                            O<span className="text-[0.8em] lowercase mt-1">ne</span>CRM
-                        </h2>
+                        {/* Logo Branding: OneCRM with forced vertical centering and scaling */}
+                        <div className="flex items-center font-black tracking-tighter uppercase leading-none">
+                            <span className="text-xl md:text-2xl lg:text-3xl">O</span>
+                            <span className="text-[0.85em] lowercase leading-none self-center pt-[0.1em]">ne</span>
+                            <span className="text-xl md:text-2xl lg:text-3xl">CRM</span>
+                        </div>
                     </div>
                     <div className="flex items-center gap-4 md:gap-8">
                         {/* Internal system: Product/Solution/Price links removed */}
