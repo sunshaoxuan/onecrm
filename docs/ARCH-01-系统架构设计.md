@@ -1,8 +1,13 @@
-# ARCH-01 OneCRM 系统架构设计
+## 1. 存储架构 (Storage Architecture)
 
-## 1. 逻辑模型 (Logical Model)
+### 1.1 非关系型基础 (NoSQL Foundation)
+- **核心引擎**：采用文档级数据库（Document Store）作为主存储，能够原生处理复杂的嵌套 JSON 结构。
+- **强 JSON 支持**：所有业务对象（客户、组织、需求）均以结构化 JSON 形式存储，支持高效的局部更新与索引。
+- **非规范化设计 (Denormalization)**：为了追求查询性能与灵活性，允许适度的冗余存储，减少跨表关联（Joins）。
 
-### 1.1 组织结构模型 (Organization Tree)
+## 2. 逻辑模型 (Logical Model)
+
+### 2.1 组织结构模型 (Organization Tree)
 - **核心实体**：`OrganizationNode`
 - **特性**：
     - 递归定义：每个节点可拥有父节点，形成树状结构。
@@ -13,7 +18,7 @@
         - `PrivateView`：特定的私有视图。
     - **逻辑说明**：发布操作需将 `DraftView` 的快照转换为相应的发布状态。
 
-### 1.2 远程连接参数化 (Remote Connection Parameterization)
+### 2.2 远程连接参数化 (Remote Connection Parameterization)
 - **设计目标**：从非结构化文字说明向结构化数据演进。
 - **参数源 (Parameter Source)**：
     - 定义统一的 JSON/YAML Schema。
