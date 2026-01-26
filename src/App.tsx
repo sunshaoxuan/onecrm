@@ -23,24 +23,20 @@ const App: React.FC = () => {
             <div className="bg-[#FFFFFF] font-display min-h-screen flex flex-col overflow-x-hidden text-slate-900">
                 {/* Header */}
                 <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-4 md:py-6 bg-white/80 backdrop-blur-md border-b border-slate-100 shadow-sm">
-                    <div className="flex items-center gap-2 md:gap-3 text-slate-900">
-                        <div className="size-7 md:size-8 bg-primary rounded-lg flex items-center justify-center text-white shadow-lg shadow-primary/20">
-                            <svg className="size-4 md:size-5" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <div className="flex items-center gap-3 md:gap-4 text-slate-900">
+                        <div className="size-8 md:size-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
+                            <svg className="size-5 md:size-6" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
                                 <path clipRule="evenodd" d="M12.0799 24L4 19.2479L9.95537 8.75216L18.04 13.4961L18.0446 4H29.9554L29.96 13.4961L38.0446 8.75216L44 19.2479L35.92 24L44 28.7521L38.0446 39.2479L29.96 34.5039L29.9554 44H18.0446L18.04 34.5039L9.95537 39.2479L4 28.7521L12.0799 24Z" fill="currentColor" fillRule="evenodd"></path>
                             </svg>
                         </div>
-                        <h2 className="text-lg md:text-xl font-black leading-tight tracking-tight uppercase flex items-baseline select-none">
-                            O<span className="text-[0.85em] lowercase">ne</span>CRM
+                        {/* Logo Branding: OneCRM with perfected alignment and scaling */}
+                        <h2 className="text-xl md:text-2xl lg:text-3xl font-black leading-none tracking-tighter uppercase flex items-center select-none">
+                            O<span className="text-[0.8em] lowercase mt-1">ne</span>CRM
                         </h2>
                     </div>
-                    <div className="hidden sm:flex items-center gap-4 md:gap-8">
-                        <nav className="flex items-center gap-6 text-sm font-semibold text-slate-600 mr-4">
-                            <a href="#" className="hover:text-primary transition-colors">製品</a>
-                            <a href="#" className="hover:text-primary transition-colors">ソリューション</a>
-                            <a href="#" className="hover:text-primary transition-colors">価格</a>
-                        </nav>
-                        <div className="h-4 w-px bg-slate-200"></div>
-                        <div className="flex items-center gap-2 text-[10px] md:text-xs font-semibold text-slate-500">
+                    <div className="flex items-center gap-4 md:gap-8">
+                        {/* Internal system: Product/Solution/Price links removed */}
+                        <div className="flex items-center gap-2 text-[10px] md:text-xs font-bold text-slate-400">
                             <span className="material-symbols-outlined text-[16px] md:text-[18px]">language</span>
                             <span className="text-primary cursor-pointer">JP</span>
                             <span className="opacity-30">|</span>
@@ -179,7 +175,7 @@ const App: React.FC = () => {
                                     <span className="w-full border-t border-slate-100"></span>
                                 </div>
                                 <div className="relative flex justify-center text-[10px] md:text-xs uppercase tracking-[0.2em]">
-                                    <span className="bg-white px-5 text-slate-400 font-black">OR CONTINUE WITH</span>
+                                    <span className="bg-white px-5 text-slate-400 font-extrabold">OR CONTINUE WITH</span>
                                 </div>
                             </div>
 
@@ -194,10 +190,22 @@ const App: React.FC = () => {
                                     Google
                                 </button>
                                 <button className="flex items-center justify-center gap-2 h-11 md:h-14 rounded-xl border border-slate-200 bg-white text-[13px] md:text-base font-bold text-slate-900 hover:bg-slate-50 transition-colors shadow-sm">
-                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path>
                                     </svg>
                                     GitHub
+                                </button>
+                                <button className="flex items-center justify-center gap-2 h-11 md:h-14 rounded-xl border border-slate-200 bg-white text-[13px] md:text-base font-bold text-slate-900 hover:bg-slate-50 transition-colors shadow-sm">
+                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M7.077 4.552c-1.33 0-2.362 1.078-2.362 2.37 0 1.294 1.032 2.373 2.362 2.373 1.332 0 2.362-1.079 2.362-2.373 0-1.292-1.03-2.37-2.362-2.37zM11.603 12V24H7.135V12h4.468zM12 12V24h4.468V18.15c0-1.545.295-3.045 2.215-3.045 1.892 0 1.918 1.768 1.918 3.142V24H25V17.37c0-3.255-.7-5.755-4.505-5.755-1.828 0-3.048.998-3.548 1.948h-.065V12H12z" />
+                                    </svg>
+                                    Outlook
+                                </button>
+                                <button className="flex items-center justify-center gap-2 h-11 md:h-14 rounded-xl border border-slate-200 bg-white text-[13px] md:text-base font-bold text-slate-900 hover:bg-slate-50 transition-colors shadow-sm font-apple">
+                                    <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M17.05 20.28c-.96.95-2.06 1.34-3.26 1.34-1.22 0-2.14-.38-3.11-.38-.97 0-2.02.39-3.15.39-1.02 0-2.26-.5-3.32-1.56C2.18 18.04 1 15.31 1 12.19c0-3.13 1.57-5.36 4.39-5.36 1.15 0 2.11.45 3 .45.82 0 2.14-.62 3.61-.62 1.43 0 2.82.5 3.77 1.48-2.6 1.53-2.19 5.33.6 6.45-1.03 2.5-2.35 4.69-3.32 5.69zM10.74 3c0 1.63-1.04 3.19-2.58 3.19-.18 0-.36-.02-.51-.05.15-2.13 1.9-3.79 3.09-3.79V3z" />
+                                    </svg>
+                                    Apple
                                 </button>
                             </div>
 
@@ -214,7 +222,7 @@ const App: React.FC = () => {
                             <a className="hover:text-primary transition-colors" href="#">利用規約</a>
                             <a className="hover:text-primary transition-colors" href="#">Cookieポリシー</a>
                             <span className="flex items-center gap-1 opacity-60">
-                                <span className="material-symbols-outlined text-[10px] md:text-[14px]">copyright</span> 2024 OneCRM
+                                <span className="material-symbols-outlined text-[10px] md:text-[14px]">copyright</span> 2026 OneCRM
                             </span>
                         </div>
                     </section>
