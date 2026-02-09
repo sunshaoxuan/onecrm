@@ -136,6 +136,16 @@
 | 429 | `AUTH_SSO_RATE_LIMITED` | 请求过于频繁 | 否 |
 | 500 | `SYS_INTERNAL_ERROR` | IdP 通信失败或配置异常 | 是 |
 
+**429 响应体结构**：
+```json
+{
+  "status": "error",
+  "error_code": "AUTH_SSO_RATE_LIMITED",
+  "message": "AUTH_SSO_RATE_LIMITED",
+  "retryAfterSeconds": 60
+}
+```
+
 ---
 
 ### 4.3 接口：SSO 回调

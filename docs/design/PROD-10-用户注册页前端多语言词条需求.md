@@ -135,9 +135,12 @@
     "BTN_REGISTER_SSO_GOOGLE": "Google Workspace で続ける",
     "ERR_REGISTER_PASSWORD_MISMATCH": "パスワードが一致しません",
     "ERR_REGISTER_EMAIL_EXISTS": "このメールアドレスは既に登録されています",
+    "ERR_REGISTER_SSO_MISSING_PROVIDER": "ログイン方法を選択してください",
+    "ERR_REGISTER_SSO_UNSUPPORTED": "サポートされていないログイン方法です",
     "ERR_REGISTER_SSO_INVALID_STATE": "セッションが無効です。もう一度お試しください",
     "ERR_REGISTER_SSO_CODE_EXPIRED": "認証コードが期限切れです。もう一度お試しください",
-    "ERR_REGISTER_SSO_PROVIDER_ERROR": "外部認証に失敗しました"
+    "ERR_REGISTER_SSO_PROVIDER_ERROR": "外部認証に失敗しました",
+    "ERR_REGISTER_SSO_RATE_LIMITED": "SSO リクエストが多すぎます。{{seconds}} 秒後に再試行してください"
   }
 }
 ```
