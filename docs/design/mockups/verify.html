@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>メール認証 - OneCRM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3f7cff;
+            --primary-dark: #2d5fd9;
+            --success: #10b981;
+            --success-bg: #d1fae5;
+            --warning: #f59e0b;
+            --warning-bg: #fef3c7;
+            --error: #ef4444;
+            --error-bg: #fee2e2;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --radius: 16px;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg-page);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .verify-container {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .verify-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 48px 40px;
+            text-align: center;
+        }
+
+        .verify-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+        }
+
+        .verify-icon.loading {
+            background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+            animation: pulse 2s infinite;
+        }
+
+        .verify-icon.success {
+            background: var(--success-bg);
+        }
+
+        .verify-icon.success .material-symbols-outlined {
+            color: var(--success);
+        }
+
+        .verify-icon.expired {
+            background: var(--warning-bg);
+        }
+
+        .verify-icon.expired .material-symbols-outlined {
+            color: var(--warning);
+        }
+
+        .verify-icon.error {
+            background: var(--error-bg);
+        }
+
+        .verify-icon.error .material-symbols-outlined {
+            color: var(--error);
+        }
+
+        .verify-icon .material-symbols-outlined {
+            font-size: 40px;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        .eyebrow {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .verify-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .verify-desc {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            background: rgba(63, 124, 255, 0.05);
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .verify-email {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Resend Form */
+        .resend-form {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 15px;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .hint {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 16px;
+        }
+
+        .brand {
+            margin-top: 32px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .brand strong {
+            color: var(--text-primary);
+        }
+
+        /* State Switcher (for demo only) */
+        .state-switcher {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 8px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            display: flex;
+            gap: 8px;
+        }
+
+        .state-switcher button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            background: var(--bg-page);
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .state-switcher button.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="verify-container">
+        <!-- State: Loading -->
+        <div class="verify-card" id="state-loading">
+            <div class="verify-icon loading">
+                <span class="material-symbols-outlined">sync</span>
+            </div>
+            <p class="eyebrow">アカウントセキュリティ</p>
+            <h1 class="verify-title">メールアドレスを確認しています...</h1>
+            <p class="verify-desc">しばらくお待ちください。</p>
+        </div>
+
+        <!-- State: Success -->
+        <div class="verify-card hidden" id="state-success">
+            <div class="verify-icon success">
+                <span class="material-symbols-outlined">check_circle</span>
+            </div>
+            <p class="eyebrow">アカウントセキュリティ</p>
+            <h1 class="verify-title">認証が完了しました</h1>
+            <p class="verify-desc">
+                メールアドレス <span class="verify-email">user@example.com</span> の確認が完了しました。<br>
+                ログインしてご利用ください。
+            </p>
+            <div class="btn-group">
+                <a href="index.html" class="btn btn-primary">
+                    <span class="material-symbols-outlined">login</span>
+                    ログインへ
+                </a>
+            </div>
+            <p class="brand">Powered by <strong>OneCRM</strong></p>
+        </div>
+
+        <!-- State: Expired -->
+        <div class="verify-card hidden" id="state-expired">
+            <div class="verify-icon expired">
+                <span class="material-symbols-outlined">schedule</span>
+            </div>
+            <p class="eyebrow">アカウントセキュリティ</p>
+            <h1 class="verify-title">リンクの有効期限が切れました</h1>
+            <p class="verify-desc">
+                認証リンクの有効期限が切れました。<br>
+                下記のボタンから確認メールを再送してください。
+            </p>
+            <div class="resend-form">
+                <div class="form-group">
+                    <label for="email">メールアドレス</label>
+                    <input type="email" id="email" placeholder="user@example.com">
+                </div>
+                <button class="btn btn-primary" style="width: 100%;">
+                    <span class="material-symbols-outlined">mail</span>
+                    確認メールを再送
+                </button>
+                <p class="hint">メールが届きませんか？迷惑メールフォルダをご確認ください。</p>
+            </div>
+            <p class="brand">Powered by <strong>OneCRM</strong></p>
+        </div>
+
+        <!-- State: Invalid -->
+        <div class="verify-card hidden" id="state-invalid">
+            <div class="verify-icon error">
+                <span class="material-symbols-outlined">error</span>
+            </div>
+            <p class="eyebrow">アカウントセキュリティ</p>
+            <h1 class="verify-title">リンクが無効です</h1>
+            <p class="verify-desc">
+                認証リンクが無効または使用済みです。<br>
+                再登録いただくか、サポートにお問い合わせください。
+            </p>
+            <div class="btn-group">
+                <a href="register.html" class="btn btn-primary">
+                    <span class="material-symbols-outlined">person_add</span>
+                    再登録
+                </a>
+                <a href="index.html" class="btn btn-outline">
+                    <span class="material-symbols-outlined">login</span>
+                    ログインへ
+                </a>
+            </div>
+            <p class="brand">Powered by <strong>OneCRM</strong></p>
+        </div>
+
+        <!-- State: Already Verified -->
+        <div class="verify-card hidden" id="state-already">
+            <div class="verify-icon success">
+                <span class="material-symbols-outlined">verified</span>
+            </div>
+            <p class="eyebrow">アカウントセキュリティ</p>
+            <h1 class="verify-title">認証済みです</h1>
+            <p class="verify-desc">
+                メールアドレスは既に認証済みです。<br>
+                ログインしてご利用ください。
+            </p>
+            <div class="btn-group">
+                <a href="index.html" class="btn btn-primary">
+                    <span class="material-symbols-outlined">login</span>
+                    ログインへ
+                </a>
+            </div>
+            <p class="brand">Powered by <strong>OneCRM</strong></p>
+        </div>
+    </div>
+
+    <!-- Demo State Switcher -->
+    <div class="state-switcher">
+        <button class="active" onclick="showState('loading')">読込中</button>
+        <button onclick="showState('success')">成功</button>
+        <button onclick="showState('expired')">期限切れ</button>
+        <button onclick="showState('invalid')">無効</button>
+        <button onclick="showState('already')">認証済</button>
+    </div>
+
+    <script>
+        function showState(state) {
+            document.querySelectorAll('.verify-card').forEach(el => el.classList.add('hidden'));
+            document.getElementById('state-' + state).classList.remove('hidden');
+            document.querySelectorAll('.state-switcher button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        // Simulate loading -> success after 2s
+        setTimeout(() => showState('success'), 2000);
+    </script>
+</body>
+
+</html>
