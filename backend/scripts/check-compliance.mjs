@@ -71,6 +71,9 @@ function checkErrorMessageKeyFormat(filePath, content) {
       continue;
     }
     const messagePart = parts[3]?.trim() || "";
+    if (/^[a-zA-Z_][a-zA-Z0-9_.]*\)?$/.test(messagePart)) {
+      continue;
+    }
     if (!/^"([A-Z0-9_]+)"\)?$/.test(messagePart)) {
       report(filePath, `fail message 必须是资源键: ${call}`);
     }

@@ -1,0 +1,207 @@
+{
+  "name": "onecrm-login-i18n-contract",
+  "version": "1.0.0",
+  "basePath": "/api",
+  "responseShape": {
+    "success": {
+      "status": "success",
+      "data": {}
+    },
+    "error": {
+      "status": "error",
+      "error_code": "ERR_CODE",
+      "message": "ERR_CODE"
+    }
+  },
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/setup/admin",
+      "auth": "public",
+      "responses": {
+        "200": {
+          "status": "success",
+          "data": {
+            "exists": true
+          }
+        },
+        "500": {
+          "status": "error",
+          "error_code": "SYS_INTERNAL_ERROR",
+          "message": "SYS_INTERNAL_ERROR"
+        },
+        "503": {
+          "status": "error",
+          "error_code": "SYS_MAINTENANCE",
+          "message": "SYS_MAINTENANCE"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/auth/login",
+      "auth": "public",
+      "requestBody": {
+        "username": "admin",
+        "password": "secret_password"
+      },
+      "responses": {
+        "200": {
+          "status": "success",
+          "data": {
+            "accessToken": "atk_xxx",
+            "refreshToken": "rtk_xxx",
+            "user": {
+              "id": "u_001",
+              "username": "admin",
+              "displayName": "Administrator",
+              "roles": ["admin"]
+            }
+          }
+        },
+        "400": {
+          "status": "error",
+          "error_code": "AUTH_MISSING_FIELD",
+          "message": "AUTH_MISSING_FIELD"
+        },
+        "401": {
+          "status": "error",
+          "error_code": "AUTH_INVALID_CREDENTIALS",
+          "message": "AUTH_INVALID_CREDENTIALS"
+        },
+        "403": {
+          "status": "error",
+          "error_code": "AUTH_LOCKED",
+          "message": "AUTH_LOCKED"
+        },
+        "429": {
+          "status": "error",
+          "error_code": "AUTH_RATE_LIMITED",
+          "message": "AUTH_RATE_LIMITED"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/auth/me",
+      "auth": "bearer",
+      "responses": {
+        "200": {
+          "status": "success",
+          "data": {
+            "id": "u_001",
+            "username": "admin",
+            "displayName": "Administrator",
+            "roles": ["admin"]
+          }
+        },
+        "401": {
+          "status": "error",
+          "error_code": "AUTH_TOKEN_EXPIRED",
+          "message": "AUTH_TOKEN_EXPIRED"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/auth/refresh",
+      "auth": "public",
+      "requestBody": {
+        "refreshToken": "rtk_xxx"
+      },
+      "responses": {
+        "200": {
+          "status": "success",
+          "data": {
+            "accessToken": "atk_new",
+            "refreshToken": "rtk_new"
+          }
+        },
+        "400": {
+          "status": "error",
+          "error_code": "AUTH_REFRESH_TOKEN_INVALID",
+          "message": "AUTH_REFRESH_TOKEN_INVALID"
+        },
+        "403": {
+          "status": "error",
+          "error_code": "AUTH_REFRESH_TOKEN_EXPIRED",
+          "message": "AUTH_REFRESH_TOKEN_EXPIRED"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/auth/logout",
+      "auth": "bearer",
+      "requestBody": {
+        "refreshToken": "rtk_xxx"
+      },
+      "responses": {
+        "200": {
+          "status": "success",
+          "data": null
+        },
+        "400": {
+          "status": "error",
+          "error_code": "AUTH_REFRESH_TOKEN_INVALID",
+          "message": "AUTH_REFRESH_TOKEN_INVALID"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/i18n/resources",
+      "auth": "public",
+      "query": {
+        "lang": "zh|ja|en (optional)"
+      },
+      "responses": {
+        "200": {
+          "status": "success",
+          "data": {
+            "app": {},
+            "auth": {}
+          },
+          "meta": {
+            "version": "v123456789",
+            "lang": "ja"
+          }
+        },
+        "304": {},
+        "400": {
+          "status": "error",
+          "error_code": "I18N_LANG_NOT_SUPPORTED",
+          "message": "I18N_LANG_NOT_SUPPORTED"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/i18n/resources",
+      "auth": "bearer-admin",
+      "requestBody": {
+        "lang": "zh",
+        "force": true,
+        "items": {
+          "AUTH_PANEL_LOGIN_BTN": "登录"
+        }
+      },
+      "responses": {
+        "200": {
+          "status": "success",
+          "data": {
+            "processed": 1,
+            "success": 1,
+            "version": "v123456789"
+          }
+        },
+        "409": {
+          "status": "error",
+          "error_code": "I18N_KEY_PROTECTED",
+          "message": "I18N_KEY_PROTECTED"
+        }
+      }
+    }
+  ]
+}
+

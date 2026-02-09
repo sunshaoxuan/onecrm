@@ -1,6 +1,7 @@
 export const FALLBACK_LANGUAGES = ["ja", "en", "zh"];
 
 export const PROTECTED_KEY_PREFIXES = [
+  "APP_",
   "MENU_",
   "LBL_",
   "BTN_",
@@ -10,4 +11,3 @@ export const PROTECTED_KEY_PREFIXES = [
   "VAL_",
   "DOC_"
 ];
-

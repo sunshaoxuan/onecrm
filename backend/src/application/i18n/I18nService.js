@@ -40,6 +40,27 @@ export class I18nService {
     return this.repository.getResources();
   }
 
+  async getBundle(lang) {
+    const dictionary = await this.getDictionary(lang);
+    const bundle = {
+      app: {},
+      auth: {}
+    };
+
+    for (const [key, value] of Object.entries(dictionary)) {
+      if (key.startsWith("APP_")) {
+        bundle.app[key.slice(4).toLowerCase()] = value;
+        continue;
+      }
+
+      if (key.startsWith("AUTH_")) {
+        bundle.auth[key.slice(5).toLowerCase()] = value;
+      }
+    }
+
+    return bundle;
+  }
+
   async getDictionary(lang) {
     const normalizedLang = normalizeLanguage(lang) || "en";
     const version = this.cache.getVersion();
@@ -84,6 +105,36 @@ export class I18nService {
     });
 
     this.cache.invalidate();
+  }
+
+  async saveBatchResources({ lang, force, items, actor }) {
+    const normalizedCulture = normalizeLanguage(lang);
+    if (!normalizedCulture) {
+      throw new Error("I18N_LANG_NOT_SUPPORTED");
+    }
+
+    if (!items || typeof items !== "object" || Array.isArray(items)) {
+      throw new Error("ERR_INVALID_ARGUMENT");
+    }
+
+    const keys = Object.keys(items);
+    let success = 0;
+    for (const key of keys) {
+      await this.saveResource({
+        key,
+        culture: normalizedCulture,
+        value: items[key],
+        force: Boolean(force),
+        actor
+      });
+      success += 1;
+    }
+
+    return {
+      processed: keys.length,
+      success,
+      version: `v${this.getVersion()}`
+    };
   }
 
   async reloadCache() {
