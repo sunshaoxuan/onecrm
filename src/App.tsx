@@ -1,33 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, message } from 'antd';
 import CustomerPortal from './pages/CustomerPortal';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import { Customer } from './types';
+import { authService, LoginResponse } from './services/auth';
+import { i18nService, I18nResources } from './services/i18n';
+import { tokenManager, StoredUser } from './services/tokenManager';
 import './styles/bob-theme.css';
 import './styles/bob-auth.css';
 
-// Mock i18n resources (Target for Backend: GET /api/i18n/resources?lang=ja)
-const resources = {
+// Fallback i18n resources (used while loading)
+const fallbackResources: I18nResources = {
     app: {
         title: "OneCRM",
         copyright: "© 2026 OneCRM Inc. All Rights Reserved."
     },
     auth: {
-        eyebrow: "セキュアアクセス", // SECURE ACCESS
+        eyebrow: "セキュアアクセス",
         slogan: {
-            main: "チームをつなぎ、\n成長を加速する", // Connect Teams, Accelerate Growth
-            sub: "最新のビジネス管理とコラボレーションのためのプラットフォーム" // Platform for...
+            main: "チームをつなぎ、\n成長を加速する",
+            sub: "最新のビジネス管理とコラボレーションのためのプラットフォーム"
         },
         panel: {
-            brand: "ワークスペースへログイン", // Login to Workspace
-            welcome: "おかえりなさい", // WELCOME BACK
-            title: "ログイン", // Login
+            brand: "ワークスペースへログイン",
+            welcome: "おかえりなさい",
+            title: "ログイン",
             username_label: "ユーザー名またはメール",
-            username_hint: "有効なアカウントを入力してください", // Fixed Chinese "有效期内账号"
+            username_hint: "有効なアカウントを入力してください",
             password_label: "パスワード",
             login_button: "ログイン",
-            divider: "または", // OR
+            divider: "または",
             footer_promo: "関係をもっとスマートに、協働をもっと自然に。",
             no_account: "アカウントがありませんか？",
             register: "登録"
@@ -42,16 +45,23 @@ const resources = {
 
 const App: React.FC = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    // TODO: Wire up currentUser in Header component for user display/logout
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [_currentUser, setCurrentUser] = useState<StoredUser | null>(null);
     const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [heroImageIndex, setHeroImageIndex] = useState(0);
+    const [resources, setResources] = useState<I18nResources>(fallbackResources);
+    const [isLoading, setIsLoading] = useState(false);
+    const [currentLang, setCurrentLang] = useState('ja');
 
     const heroImages = [
         "/images/slider/tokyo01.jpg",
         "/images/slider/fujisann01.jpg"
     ];
 
+    // Hero image carousel
     useEffect(() => {
         const interval = setInterval(() => {
             setHeroImageIndex(prev => (prev + 1) % heroImages.length);
@@ -59,10 +69,125 @@ const App: React.FC = () => {
         return () => clearInterval(interval);
     }, []);
 
-    const handleLogin = (e: React.FormEvent) => {
+    // Load i18n resources on mount
+    useEffect(() => {
+        loadI18nResources(currentLang);
+    }, []);
+
+    // Check for existing session on mount
+    useEffect(() => {
+        checkExistingSession();
+    }, []);
+
+    // Load i18n resources from API
+    const loadI18nResources = async (lang: string) => {
+        try {
+            const result = await i18nService.getResources(lang);
+            // null means 304 Not Modified, keep current resources
+            if (result) {
+                setResources(result.data);
+                setCurrentLang(result.meta.lang);
+            }
+        } catch (error: unknown) {
+            console.error('[App] Failed to load i18n resources:', error);
+            // Keep fallback resources
+        }
+    };
+
+    // Check if user has valid session
+    const checkExistingSession = async () => {
+        if (!tokenManager.hasTokens()) {
+            return;
+        }
+
+        const accessToken = tokenManager.getAccessToken();
+        const refreshToken = tokenManager.getRefreshToken();
+
+        if (!accessToken || !refreshToken) {
+            return;
+        }
+
+        try {
+            // Validate current token
+            const user = await authService.me(accessToken);
+            setCurrentUser(user);
+            setIsLoggedIn(true);
+        } catch (error: any) {
+            // Token expired, try refresh
+            if (error.message === 'AUTH_TOKEN_EXPIRED') {
+                try {
+                    const tokens = await authService.refresh(refreshToken);
+                    // Use me() response for user data instead of potentially stale getUser()
+                    const user = await authService.me(tokens.accessToken);
+                    tokenManager.save(tokens.accessToken, tokens.refreshToken, user);
+                    setCurrentUser(user);
+                    setIsLoggedIn(true);
+                } catch (refreshError) {
+                    console.error('[App] Session refresh failed:', refreshError);
+                    tokenManager.clear();
+                }
+            } else {
+                tokenManager.clear();
+            }
+        }
+    };
+
+    // Handle login form submission
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Login attempt', { email, password });
-        setIsLoggedIn(true);
+        setIsLoading(true);
+
+        try {
+            const result: LoginResponse = await authService.login({ username, password });
+
+            // Save tokens and user
+            tokenManager.save(result.accessToken, result.refreshToken, result.user);
+            setCurrentUser(result.user);
+            setIsLoggedIn(true);
+            message.success('ログイン成功');
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : 'UNKNOWN_ERROR';
+            console.error('[App] Login failed:', error);
+
+            // Map error codes to user-friendly messages
+            const errorMessages: Record<string, string> = {
+                'AUTH_MISSING_FIELD': '必須項目を入力してください',
+                'AUTH_INVALID_CREDENTIALS': 'ユーザー名またはパスワードが間違っています',
+                'AUTH_LOCKED': 'アカウントがロックされています',
+                'AUTH_RATE_LIMITED': '試行回数が多すぎます。しばらくしてから再度お試しください',
+            };
+
+            message.error(errorMessages[errorMessage] || 'ログインに失敗しました');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // TODO: Wire up handleLogout in Header component
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _handleLogout = async () => {
+        const accessToken = tokenManager.getAccessToken();
+        const refreshToken = tokenManager.getRefreshToken();
+
+        if (accessToken && refreshToken) {
+            try {
+                await authService.logout(accessToken, refreshToken);
+            } catch (error) {
+                console.error('[App] Logout failed:', error);
+            }
+        }
+
+        tokenManager.clear();
+        setIsLoggedIn(false);
+        setCurrentUser(null);
+        setSelectedCustomer(null);
+    };
+
+    // TODO: Wire up handleLanguageChange to language toggle buttons
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _handleLanguageChange = (lang: string) => {
+        setCurrentLang(lang);
+        loadI18nResources(lang);
     };
 
     if (!isLoggedIn) {
@@ -113,8 +238,9 @@ const App: React.FC = () => {
                                         className="field-control"
                                         type="email"
                                         placeholder="admin"
-                                        value={email}
-                                        onChange={e => setEmail(e.target.value)}
+                                        value={username}
+                                        onChange={e => setUsername(e.target.value)}
+                                        disabled={isLoading}
                                     />
                                 </div>
                                 <div className="auth-field">
@@ -122,11 +248,13 @@ const App: React.FC = () => {
                                     <input
                                         className="field-control"
                                         type="password"
+                                        placeholder="••••••••"
                                         value={password}
                                         onChange={e => setPassword(e.target.value)}
+                                        disabled={isLoading}
                                     />
                                 </div>
-                                <button type="submit">{resources.auth.panel.login_button}</button>
+                                <button type="submit" disabled={isLoading}>{isLoading ? '処理中...' : resources.auth.panel.login_button}</button>
                             </form>
 
                             <div className="auth-divider">
