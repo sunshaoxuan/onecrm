@@ -29,12 +29,12 @@ export function checkEtag(req, etag) {
   return ifNoneMatch && ifNoneMatch === etag;
 }
 
-export function ok(res, data, meta = undefined, headers = {}) {
+export function ok(res, data, meta = undefined, headers = {}, statusCode = 200) {
   const payload = { status: "success", data };
   if (meta) {
     payload.meta = meta;
   }
-  sendJson(res, 200, payload, headers);
+  sendJson(res, statusCode, payload, headers);
 }
 
 export function fail(res, statusCode, errorCode, message, headers = {}) {

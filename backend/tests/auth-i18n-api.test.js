@@ -194,6 +194,268 @@ test("POST /api/auth/logout requires bearer", async () => {
   await app.close();
 });
 
+test("POST /api/auth/register returns 201 and requiresVerification", async () => {
+  const app = await startServer();
+  const response = await fetch(`${app.baseUrl}/api/auth/register`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      name: "John Doe",
+      email: "john@example.com",
+      password: "SecurePass123",
+      confirmPassword: "SecurePass123",
+      termsAccepted: true
+    })
+  });
+  assert.equal(response.status, 201);
+  const body = await response.json();
+  assert.equal(body.status, "success");
+  assert.equal(body.data.email, "john@example.com");
+  assert.equal(body.data.requiresVerification, true);
+  await app.close();
+});
+
+test("POST /api/auth/register validates mismatch and terms", async () => {
+  const app = await startServer();
+  const mismatch = await fetch(`${app.baseUrl}/api/auth/register`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      name: "John Doe",
+      email: "john@example.com",
+      password: "SecurePass123",
+      confirmPassword: "SecurePass999",
+      termsAccepted: true
+    })
+  });
+  assert.equal(mismatch.status, 400);
+  const mismatchBody = await mismatch.json();
+  assert.equal(mismatchBody.error_code, "AUTH_PASSWORD_MISMATCH");
+
+  const terms = await fetch(`${app.baseUrl}/api/auth/register`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      name: "John Doe",
+      email: "john2@example.com",
+      password: "SecurePass123",
+      confirmPassword: "SecurePass123",
+      termsAccepted: false
+    })
+  });
+  assert.equal(terms.status, 400);
+  const termsBody = await terms.json();
+  assert.equal(termsBody.error_code, "AUTH_TERMS_NOT_ACCEPTED");
+  await app.close();
+});
+
+test("POST /api/auth/register returns 409 for duplicate email", async () => {
+  const app = await startServer();
+  const body = JSON.stringify({
+    name: "John Doe",
+    email: "john@example.com",
+    password: "SecurePass123",
+    confirmPassword: "SecurePass123",
+    termsAccepted: true
+  });
+  const first = await fetch(`${app.baseUrl}/api/auth/register`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body
+  });
+  assert.equal(first.status, 201);
+
+  const second = await fetch(`${app.baseUrl}/api/auth/register`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body
+  });
+  assert.equal(second.status, 409);
+  const secondBody = await second.json();
+  assert.equal(secondBody.error_code, "AUTH_EMAIL_EXISTS");
+  await app.close();
+});
+
+test("POST /api/auth/register returns 429 with retryAfterSeconds", async () => {
+  const app = await startServer();
+  for (let i = 0; i < 10; i += 1) {
+    const okResponse = await fetch(`${app.baseUrl}/api/auth/register`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        name: `John ${i}`,
+        email: `john${i}@example.com`,
+        password: "SecurePass123",
+        confirmPassword: "SecurePass123",
+        termsAccepted: true
+      })
+    });
+    assert.equal(okResponse.status, 201);
+  }
+
+  const limited = await fetch(`${app.baseUrl}/api/auth/register`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      name: "John 99",
+      email: "john99@example.com",
+      password: "SecurePass123",
+      confirmPassword: "SecurePass123",
+      termsAccepted: true
+    })
+  });
+  assert.equal(limited.status, 429);
+  const body = await limited.json();
+  assert.equal(body.error_code, "AUTH_REGISTER_RATE_LIMITED");
+  assert.equal(typeof body.retryAfterSeconds, "number");
+  await app.close();
+});
+
+test("POST /api/auth/sso/init and /api/auth/sso/callback success", async () => {
+  const app = await startServer();
+  const init = await fetch(`${app.baseUrl}/api/auth/sso/init`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      provider: "microsoft",
+      redirectUri: "https://app.onecrm.com/sso/callback"
+    })
+  });
+  assert.equal(init.status, 200);
+  const initBody = await init.json();
+  assert.equal(typeof initBody.data.authUrl, "string");
+  assert.equal(typeof initBody.data.state, "string");
+
+  const callback = await fetch(`${app.baseUrl}/api/auth/sso/callback`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      provider: "microsoft",
+      code: "email:new.user@company.com",
+      state: initBody.data.state
+    })
+  });
+  assert.equal(callback.status, 200);
+  const callbackBody = await callback.json();
+  assert.equal(callbackBody.data.isNewUser, true);
+  assert.equal(callbackBody.data.user.email, "new.user@company.com");
+  await app.close();
+});
+
+test("POST /api/auth/sso/init validates provider and rate limit", async () => {
+  const app = await startServer();
+  const missing = await fetch(`${app.baseUrl}/api/auth/sso/init`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ redirectUri: "https://app.onecrm.com/sso/callback" })
+  });
+  assert.equal(missing.status, 400);
+  assert.equal((await missing.json()).error_code, "AUTH_SSO_MISSING_PROVIDER");
+
+  const unsupported = await fetch(`${app.baseUrl}/api/auth/sso/init`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      provider: "github",
+      redirectUri: "https://app.onecrm.com/sso/callback"
+    })
+  });
+  assert.equal(unsupported.status, 400);
+  assert.equal((await unsupported.json()).error_code, "AUTH_SSO_UNSUPPORTED_PROVIDER");
+
+  for (let i = 0; i < 20; i += 1) {
+    const okResponse = await fetch(`${app.baseUrl}/api/auth/sso/init`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        provider: "google",
+        redirectUri: "https://app.onecrm.com/sso/callback"
+      })
+    });
+    assert.equal(okResponse.status, 200);
+  }
+  const limited = await fetch(`${app.baseUrl}/api/auth/sso/init`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      provider: "google",
+      redirectUri: "https://app.onecrm.com/sso/callback"
+    })
+  });
+  assert.equal(limited.status, 429);
+  const limitedBody = await limited.json();
+  assert.equal(limitedBody.error_code, "AUTH_SSO_RATE_LIMITED");
+  assert.equal(typeof limitedBody.retryAfterSeconds, "number");
+  await app.close();
+});
+
+test("POST /api/auth/sso/callback validates errors", async () => {
+  const app = await startServer();
+  const missing = await fetch(`${app.baseUrl}/api/auth/sso/callback`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ provider: "google" })
+  });
+  assert.equal(missing.status, 400);
+  assert.equal((await missing.json()).error_code, "AUTH_SSO_MISSING_FIELD");
+
+  const init = await fetch(`${app.baseUrl}/api/auth/sso/init`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      provider: "google",
+      redirectUri: "https://app.onecrm.com/sso/callback"
+    })
+  });
+  const initBody = await init.json();
+
+  const invalidState = await fetch(`${app.baseUrl}/api/auth/sso/callback`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      provider: "google",
+      code: "email:user@company.com",
+      state: `${initBody.data.state}_wrong`
+    })
+  });
+  assert.equal(invalidState.status, 400);
+  assert.equal((await invalidState.json()).error_code, "AUTH_SSO_INVALID_STATE");
+
+  const expiredCode = await fetch(`${app.baseUrl}/api/auth/sso/callback`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      provider: "google",
+      code: "expired:any",
+      state: initBody.data.state
+    })
+  });
+  assert.equal(expiredCode.status, 400);
+  assert.equal((await expiredCode.json()).error_code, "AUTH_SSO_CODE_EXPIRED");
+
+  const init2 = await fetch(`${app.baseUrl}/api/auth/sso/init`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      provider: "google",
+      redirectUri: "https://app.onecrm.com/sso/callback"
+    })
+  });
+  const init2Body = await init2.json();
+  const domainDenied = await fetch(`${app.baseUrl}/api/auth/sso/callback`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      provider: "google",
+      code: "email:user@unknown-domain.com",
+      state: init2Body.data.state
+    })
+  });
+  assert.equal(domainDenied.status, 403);
+  assert.equal((await domainDenied.json()).error_code, "AUTH_SSO_DOMAIN_NOT_ALLOWED");
+  await app.close();
+});
+
 test("POST /api/auth/password/reset-link returns success for registered email", async () => {
   const app = await startServer();
   const response = await fetch(`${app.baseUrl}/api/auth/password/reset-link`, {
@@ -390,6 +652,38 @@ test("GET /api/i18n/resources returns forget namespace for PROD-08 keys", async 
   assert.equal(body.data.forget.page_title, "Reset Password");
   assert.equal(body.data.forget.rate_limited, "Retry in {{seconds}} seconds");
 
+  await app.close();
+});
+
+test("GET /api/i18n/resources returns register namespace for PROD-10 keys", async () => {
+  const app = await startServer();
+  const loginResponse = await login(app.baseUrl);
+  const loginBody = await loginResponse.json();
+  const accessToken = loginBody.data.accessToken;
+
+  const saveResponse = await fetch(`${app.baseUrl}/api/i18n/resources`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      Authorization: `Bearer ${accessToken}`
+    },
+    body: JSON.stringify({
+      lang: "en",
+      force: false,
+      module: "register",
+      items: {
+        LBL_REGISTER_PAGE_TITLE: "Create Account",
+        ERR_REGISTER_SSO_RATE_LIMITED: "Too many SSO requests {{seconds}}"
+      }
+    })
+  });
+  assert.equal(saveResponse.status, 200);
+
+  const resources = await fetch(`${app.baseUrl}/api/i18n/resources?lang=en`);
+  assert.equal(resources.status, 200);
+  const body = await resources.json();
+  assert.equal(body.data.register.page_title, "Create Account");
+  assert.equal(body.data.register.sso_rate_limited, "Too many SSO requests {{seconds}}");
   await app.close();
 });
 

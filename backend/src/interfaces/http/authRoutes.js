@@ -101,6 +101,79 @@ export function createAuthRoutes({ authService }) {
       return true;
     }
 
+    if (req.method === "POST" && req.url === "/api/auth/register") {
+      const body = await readJsonBody(req);
+      const result = authService.register({
+        name: body.name,
+        email: body.email,
+        password: body.password,
+        confirmPassword: body.confirmPassword,
+        termsAccepted: body.termsAccepted,
+        clientIp: getClientIp(req)
+      });
+
+      if (!result.ok) {
+        if (result.status === 429) {
+          failWithDetails(
+            res,
+            result.status,
+            result.code,
+            result.code,
+            { retryAfterSeconds: result.retryAfterSeconds }
+          );
+          return true;
+        }
+        fail(res, result.status, result.code, result.code);
+        return true;
+      }
+
+      ok(res, result.data, undefined, {}, 201);
+      return true;
+    }
+
+    if (req.method === "POST" && req.url === "/api/auth/sso/init") {
+      const body = await readJsonBody(req);
+      const result = authService.ssoInit({
+        provider: body.provider,
+        redirectUri: body.redirectUri,
+        clientIp: getClientIp(req)
+      });
+
+      if (!result.ok) {
+        if (result.status === 429) {
+          failWithDetails(
+            res,
+            result.status,
+            result.code,
+            result.code,
+            { retryAfterSeconds: result.retryAfterSeconds }
+          );
+          return true;
+        }
+        fail(res, result.status, result.code, result.code);
+        return true;
+      }
+
+      ok(res, result.data);
+      return true;
+    }
+
+    if (req.method === "POST" && req.url === "/api/auth/sso/callback") {
+      const body = await readJsonBody(req);
+      const result = authService.ssoCallback({
+        provider: body.provider,
+        code: body.code,
+        state: body.state
+      });
+      if (!result.ok) {
+        fail(res, result.status, result.code, result.code);
+        return true;
+      }
+
+      ok(res, result.data);
+      return true;
+    }
+
     return false;
   };
 }

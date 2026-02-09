@@ -1,6 +1,6 @@
 {
   "name": "onecrm-login-i18n-contract",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "basePath": "/api",
   "responseShape": {
     "success": {
@@ -179,6 +179,109 @@
       }
     },
     {
+      "method": "POST",
+      "path": "/auth/register",
+      "auth": "public",
+      "requestBody": {
+        "name": "John Doe",
+        "email": "user@example.com",
+        "password": "SecurePass123",
+        "confirmPassword": "SecurePass123",
+        "termsAccepted": true
+      },
+      "responses": {
+        "201": {
+          "status": "success",
+          "data": {
+            "userId": "usr_abc123",
+            "email": "user@example.com",
+            "requiresVerification": true
+          }
+        },
+        "400": {
+          "status": "error",
+          "error_code": "AUTH_PASSWORD_MISMATCH",
+          "message": "AUTH_PASSWORD_MISMATCH"
+        },
+        "409": {
+          "status": "error",
+          "error_code": "AUTH_EMAIL_EXISTS",
+          "message": "AUTH_EMAIL_EXISTS"
+        },
+        "429": {
+          "status": "error",
+          "error_code": "AUTH_REGISTER_RATE_LIMITED",
+          "message": "AUTH_REGISTER_RATE_LIMITED",
+          "retryAfterSeconds": 600
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/auth/sso/init",
+      "auth": "public",
+      "requestBody": {
+        "provider": "microsoft",
+        "redirectUri": "https://app.onecrm.com/sso/callback"
+      },
+      "responses": {
+        "200": {
+          "status": "success",
+          "data": {
+            "authUrl": "https://sso.onecrm.local/microsoft/authorize?...",
+            "state": "sso_xxx"
+          }
+        },
+        "400": {
+          "status": "error",
+          "error_code": "AUTH_SSO_MISSING_PROVIDER",
+          "message": "AUTH_SSO_MISSING_PROVIDER"
+        },
+        "429": {
+          "status": "error",
+          "error_code": "AUTH_SSO_RATE_LIMITED",
+          "message": "AUTH_SSO_RATE_LIMITED",
+          "retryAfterSeconds": 60
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/auth/sso/callback",
+      "auth": "public",
+      "requestBody": {
+        "provider": "microsoft",
+        "code": "email:user@company.com",
+        "state": "sso_xxx"
+      },
+      "responses": {
+        "200": {
+          "status": "success",
+          "data": {
+            "accessToken": "atk_xxx",
+            "refreshToken": "rtk_xxx",
+            "user": {
+              "id": "usr_abc123",
+              "name": "John",
+              "email": "user@company.com",
+              "avatar": null
+            },
+            "isNewUser": true
+          }
+        },
+        "400": {
+          "status": "error",
+          "error_code": "AUTH_SSO_INVALID_STATE",
+          "message": "AUTH_SSO_INVALID_STATE"
+        },
+        "403": {
+          "status": "error",
+          "error_code": "AUTH_SSO_DOMAIN_NOT_ALLOWED",
+          "message": "AUTH_SSO_DOMAIN_NOT_ALLOWED"
+        }
+      }
+    },
+    {
       "method": "GET",
       "path": "/i18n/resources",
       "auth": "public",
@@ -191,7 +294,8 @@
           "data": {
             "app": {},
             "auth": {},
-            "forget": {}
+            "forget": {},
+            "register": {}
           },
           "meta": {
             "version": "v123456789",

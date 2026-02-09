@@ -45,7 +45,8 @@ export class I18nService {
     const bundle = {
       app: {},
       auth: {},
-      forget: {}
+      forget: {},
+      register: {}
     };
 
     for (const [key, value] of Object.entries(dictionary)) {
@@ -62,6 +63,12 @@ export class I18nService {
       const forgetMatch = key.match(/^[A-Z]+_FORGET_(.+)$/);
       if (forgetMatch) {
         bundle.forget[forgetMatch[1].toLowerCase()] = value;
+        continue;
+      }
+
+      const registerMatch = key.match(/^[A-Z]+_REGISTER_(.+)$/);
+      if (registerMatch) {
+        bundle.register[registerMatch[1].toLowerCase()] = value;
       }
     }
 
