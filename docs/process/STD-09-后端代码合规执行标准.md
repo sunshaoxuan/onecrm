@@ -42,7 +42,7 @@
   - 后续可扩展其他物理适配器，不改变应用层接口
 
 ### 2.5 文档与协作（继承 STD-02, STD-08）
-- 后端规范/流程文档放置于 `backend/docs/process/`。
+- 后端规范/流程文档放置于统一项目文档目录 `docs/process/`。
 - 文件命名必须符合 `TYPE-Number-中文名称.md`。
 - 交付前必须清理临时脚本和调试文件，禁止提交垃圾产物。
 
@@ -78,4 +78,3 @@
 - 已落地全局请求日志字段：`trace_id/cost_ms/status/user`。
 - 已落地词条审计字段与 MinIO/S3 对象存储适配。
 - 已落地自动合规检查脚本：`backend/scripts/check-compliance.mjs`。
-
