@@ -151,8 +151,8 @@
 {
   "status": "success",
   "data": {
-    "processed": 13,
-    "success": 13,
+    "processed": 16,
+    "success": 16,
     "version": "v1.0.6"
   }
 }
