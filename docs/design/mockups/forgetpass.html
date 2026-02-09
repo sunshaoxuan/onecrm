@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>パスワード再設定 - OneCRM</title>
+    <!-- Use direct paths to source styles for development prototype -->
+    <link rel="stylesheet" href="/src/styles/bob-theme.css">
+    <link rel="stylesheet" href="/src/styles/bob-auth.css">
+    <style>
+        /* Minimal reset for the prototype since we don't have Tailwind's base reset here */
+        body {
+            margin: 0;
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        .whitespace-pre-line {
+            white-space: pre-line;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-shell has-hero-image">
+        <div class="auth-hero-brand-floating">OneCRM</div>
+
+        <section class="auth-hero">
+            <img class="auth-hero-bg show" src="/images/slider/tokyo01.jpg" alt="Hero background">
+            <div class="auth-hero-overlay"></div>
+
+            <p class="auth-eyebrow">セキュアアクセス</p>
+            <h1 class="whitespace-pre-line">チームをつなぎ、&#10;成長を加速する</h1>
+            <p class="auth-hero-subtitle">最新のビジネス管理とコラボレーションのためのプラットフォーム</p>
+        </section>
+
+        <section class="auth-panel">
+            <header class="auth-panel-header">
+                <div class="auth-brand">パスワードの再設定</div>
+                <div class="auth-lang-toggle">
+                    <button>中文</button>
+                    <button class="active">日本語</button>
+                    <button>EN</button>
+                </div>
+            </header>
+
+            <div class="auth-panel-body">
+                <p class="auth-eyebrow text-center">アカウントの復旧</p>
+                <div class="auth-form-header">
+                    <h2>パスワードをお忘れですか？</h2>
+                    <p style="color: var(--text-secondary); font-size: 14px; margin-top: 8px; line-height: 1.5;">
+                        登録済みのメール地址を入力してください。<br>パスワード再設定用のリンクをお送りします。
+                    </p>
+                </div>
+
+                <form class="auth-form" onsubmit="event.preventDefault(); alert('再設定リンクを送信しました。');">
+                    <div class="auth-field">
+                        <label>メールアドレス</label>
+                        <input class="field-control" type="email" placeholder="name@company.com" required>
+                    </div>
+
+                    <button type="submit" style="margin-top: 16px;">再設定リンクを送信</button>
+                </form>
+
+                <div class="auth-promo">
+                    パスワードを思い出しましたか？ <a href="/">ログインに戻る</a>
+                </div>
+
+                <footer class="auth-panel-footer">
+                    <div class="auth-copyright">
+                        © 2026 OneCRM Inc. All Rights Reserved.
+                    </div>
+                </footer>
+            </div>
+        </section>
+    </div>
+</body>
+
+</html>
