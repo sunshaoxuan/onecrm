@@ -18,7 +18,14 @@ OneCRM 是一款兼具时尚画面与高效导向的客户信息管理软件。
 - [UX-01 交互与视觉设计规范](docs/UX-01-交互与视觉设计规范.md): 现代化视觉与高感官 UI 准则。
 - [ARCH-01 系统架构设计](docs/ARCH-01-系统架构设计.md): 逻辑模型、结构化参数源及视图发布逻辑。
 
+## 最新更新 (v0.2.0 - UI Overhaul)
+- **全新登录界面**: 移植自 BobCRM (Calm CRM)，采用现代玻璃拟态设计。
+- **国际化 (i18n)**: 支持 中/日/英 多语言切换 (Mock 阶段)。
+- **SSO 集成**: 支持 Google 和 Microsoft 单点登录。
+- **视觉优化**: 优化了排版、间距和字体，提供更舒适的阅读体验。
+
 ## 开发环境
 - **前端**: **React (Vite)** + **Tailwind CSS** + **Ant Design** (提供最丰富的业务组件集)
+- **样式**: `bob-theme.css` (Calm Design System)
 - **后端**: AI-Driven Core (智能代理驱动)
 - **数据库**: NoSQL / Document DB (原生支持强 JSON)
