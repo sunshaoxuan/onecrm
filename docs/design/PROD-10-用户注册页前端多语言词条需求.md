@@ -82,10 +82,13 @@
 | `ERR_REGISTER_TERMS_REQUIRED` | 请同意服务条款 | 利用規約への同意が必要です | Please accept the terms of service | 未勾选条款 |
 | `ERR_REGISTER_SSO_FAILED` | SSO 认证失败，请重试 | SSO 認証に失敗しました。再試行してください | SSO authentication failed, please try again | SSO 失败 |
 | `ERR_REGISTER_SSO_DOMAIN` | 您的企业域名未授权使用此服务 | お使いの企業ドメインはこのサービスを使用する権限がありません | Your corporate domain is not authorized for this service | SSO 域名未授权 |
+| `ERR_REGISTER_SSO_MISSING_PROVIDER` | 请选择登录方式 | ログイン方法を選択してください | Please select a login method | provider 参数缺失 |
+| `ERR_REGISTER_SSO_UNSUPPORTED` | 不支持的登录方式 | サポートされていないログイン方法です | Unsupported login method | provider 不支持 |
 | `ERR_REGISTER_SSO_INVALID_STATE` | 会话无效，请重新登录 | セッションが無効です。もう一度お試しください | Session is invalid, please try again | SSO State 不匹配 |
 | `ERR_REGISTER_SSO_CODE_EXPIRED` | 授权码已过期，请重新登录 | 認証コードが期限切れです。もう一度お試しください | Authorization code expired, please try again | SSO Code 过期 |
 | `ERR_REGISTER_SSO_PROVIDER_ERROR` | 外部认证服务出错 | 外部認証に失敗しました | External authentication failed | IdP 返回错误 |
-| `ERR_REGISTER_RATE_LIMITED` | 注册请求过于频繁，请 {{seconds}} 秒后再试 | 登録リクエストが多すぎます。{{seconds}} 秒後に再試行してください | Too many registration requests, please retry in {{seconds}} seconds | 限流 |
+| `ERR_REGISTER_RATE_LIMITED` | 注册请求过于频繁，请 {{seconds}} 秒后再试 | 登録リクエストが多すぎます。{{seconds}} 秒後に再試行してください | Too many registration requests, please retry in {{seconds}} seconds | 注册限流 |
+| `ERR_REGISTER_SSO_RATE_LIMITED` | SSO 请求过于频繁，请 {{seconds}} 秒后再试 | SSO リクエストが多すぎます。{{seconds}} 秒後に再試行してください | Too many SSO requests, please retry in {{seconds}} seconds | SSO 限流 |
 | `ERR_REGISTER_SYSTEM_ERROR` | 系统繁忙，请稍后再试 | システムエラーが発生しました | System error, please try again later | 系统错误 |
 
 ---

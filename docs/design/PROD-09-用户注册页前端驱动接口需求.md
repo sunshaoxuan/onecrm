@@ -83,15 +83,15 @@
 | 400 | `AUTH_PASSWORD_MISMATCH` | パスワードが一致しません | 是 |
 | 400 | `AUTH_TERMS_NOT_ACCEPTED` | 利用規約への同意が必要です | 是 |
 | 409 | `AUTH_EMAIL_EXISTS` | このメールアドレスは既に登録されています | 否 |
-| 429 | `AUTH_RATE_LIMITED` | 登録リクエストが多すぎます | 否 |
+| 429 | `AUTH_REGISTER_RATE_LIMITED` | 登録リクエストが多すぎます | 否 |
 | 500 | `SYS_INTERNAL_ERROR` | システムエラーが発生しました | 是 |
 
 **429 响应体结构**（与 PROD-07/08 保持一致）：
 ```json
 {
   "status": "error",
-  "error_code": "AUTH_RATE_LIMITED",
-  "message": "AUTH_RATE_LIMITED",
+  "error_code": "AUTH_REGISTER_RATE_LIMITED",
+  "message": "AUTH_REGISTER_RATE_LIMITED",
   "retryAfterSeconds": 600
 }
 ```
@@ -133,7 +133,7 @@
 |---|---|---|---|
 | 400 | `AUTH_SSO_MISSING_PROVIDER` | provider 参数缺失 | 是 |
 | 400 | `AUTH_SSO_UNSUPPORTED_PROVIDER` | provider 不在支持列表 | 否 |
-| 429 | `AUTH_RATE_LIMITED` | 请求过于频繁 | 否 |
+| 429 | `AUTH_SSO_RATE_LIMITED` | 请求过于频繁 | 否 |
 | 500 | `SYS_INTERNAL_ERROR` | IdP 通信失败或配置异常 | 是 |
 
 ---
@@ -197,10 +197,10 @@
 | `nonce` | 仅 OIDC 场景 | 当前 OAuth 2.0 不强制 |
 
 ### 5.3 限流策略
-| 接口 | 限制 | 429 响应 |
-|------|------|----------|
-| 自由注册 | 单 IP 每小时 10 次 | 包含 `retryAfterSeconds` |
-| SSO 初始化 | 单 IP 每分钟 20 次 | 包含 `retryAfterSeconds` |
+| 接口 | 限制 | 429 错误码 |
+|------|------|------------|
+| 自由注册 | 单 IP 每小时 10 次 | `AUTH_REGISTER_RATE_LIMITED` |
+| SSO 初始化 | 单 IP 每分钟 20 次 | `AUTH_SSO_RATE_LIMITED` |
 
 ### 5.4 审计要求
 | 字段 | 记录方式 |
