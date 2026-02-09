@@ -1,6 +1,6 @@
 {
   "name": "onecrm-login-i18n-contract",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "basePath": "/api",
   "responseShape": {
     "success": {
@@ -149,6 +149,36 @@
       }
     },
     {
+      "method": "POST",
+      "path": "/auth/password/reset-link",
+      "auth": "public",
+      "requestBody": {
+        "email": "user@example.com"
+      },
+      "responses": {
+        "200": {
+          "status": "success",
+          "data": null
+        },
+        "400": {
+          "status": "error",
+          "error_code": "AUTH_EMAIL_INVALID",
+          "message": "AUTH_EMAIL_INVALID"
+        },
+        "429": {
+          "status": "error",
+          "error_code": "AUTH_RATE_LIMITED",
+          "message": "AUTH_RATE_LIMITED",
+          "retryAfterSeconds": 600
+        },
+        "500": {
+          "status": "error",
+          "error_code": "SYS_INTERNAL_ERROR",
+          "message": "SYS_INTERNAL_ERROR"
+        }
+      }
+    },
+    {
       "method": "GET",
       "path": "/i18n/resources",
       "auth": "public",
@@ -160,7 +190,8 @@
           "status": "success",
           "data": {
             "app": {},
-            "auth": {}
+            "auth": {},
+            "forget": {}
           },
           "meta": {
             "version": "v123456789",
@@ -204,4 +235,3 @@
     }
   ]
 }
-

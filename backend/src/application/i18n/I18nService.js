@@ -44,7 +44,8 @@ export class I18nService {
     const dictionary = await this.getDictionary(lang);
     const bundle = {
       app: {},
-      auth: {}
+      auth: {},
+      forget: {}
     };
 
     for (const [key, value] of Object.entries(dictionary)) {
@@ -55,6 +56,12 @@ export class I18nService {
 
       if (key.startsWith("AUTH_")) {
         bundle.auth[key.slice(5).toLowerCase()] = value;
+        continue;
+      }
+
+      const forgetMatch = key.match(/^[A-Z]+_FORGET_(.+)$/);
+      if (forgetMatch) {
+        bundle.forget[forgetMatch[1].toLowerCase()] = value;
       }
     }
 
@@ -93,7 +100,10 @@ export class I18nService {
       throw new Error("Culture is required");
     }
 
-    if (isProtectedKey(normalizedKey) && !force) {
+    const resources = await this.repository.getResources();
+    const exists = resources.some((item) => item.key === normalizedKey && Number(item.is_deleted) !== 1);
+
+    if (exists && isProtectedKey(normalizedKey) && !force) {
       throw new Error("I18N_KEY_PROTECTED");
     }
 

@@ -79,3 +79,58 @@ test("AuthService logout handles invalid and missing tokens", () => {
   assert.equal(missing.data, null);
 });
 
+test("AuthService requestPasswordResetLink validates email input", async () => {
+  const service = new AuthService();
+  const missing = await service.requestPasswordResetLink({ email: "", clientIp: "1.1.1.1" });
+  assert.equal(missing.ok, false);
+  assert.equal(missing.code, "AUTH_EMAIL_REQUIRED");
+
+  const invalid = await service.requestPasswordResetLink({ email: "bad-mail", clientIp: "1.1.1.1" });
+  assert.equal(invalid.ok, false);
+  assert.equal(invalid.code, "AUTH_EMAIL_INVALID");
+});
+
+test("AuthService requestPasswordResetLink uses unified success for unknown email", async () => {
+  const service = new AuthService();
+  const result = await service.requestPasswordResetLink({
+    email: "nobody@example.com",
+    clientIp: "2.2.2.2"
+  });
+  assert.equal(result.ok, true);
+  assert.equal(result.data, null);
+});
+
+test("AuthService requestPasswordResetLink returns rate limited with retryAfterSeconds", async () => {
+  const service = new AuthService();
+  for (let i = 0; i < 5; i += 1) {
+    const okReset = await service.requestPasswordResetLink({
+      email: "admin@onecrm.local",
+      clientIp: "3.3.3.3"
+    });
+    assert.equal(okReset.ok, true);
+  }
+
+  const limited = await service.requestPasswordResetLink({
+    email: "admin@onecrm.local",
+    clientIp: "3.3.3.3"
+  });
+  assert.equal(limited.ok, false);
+  assert.equal(limited.code, "AUTH_RATE_LIMITED");
+  assert.equal(typeof limited.retryAfterSeconds, "number");
+  assert.equal(limited.retryAfterSeconds > 0, true);
+});
+
+test("AuthService requestPasswordResetLink returns 500 when sender throws", async () => {
+  const service = new AuthService({
+    passwordResetSender: async () => {
+      throw new Error("failed");
+    }
+  });
+  const result = await service.requestPasswordResetLink({
+    email: "admin@onecrm.local",
+    clientIp: "4.4.4.4"
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.status, 500);
+  assert.equal(result.code, "SYS_INTERNAL_ERROR");
+});

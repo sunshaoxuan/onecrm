@@ -49,3 +49,17 @@ export function fail(res, statusCode, errorCode, message, headers = {}) {
     headers
   );
 }
+
+export function failWithDetails(res, statusCode, errorCode, message, details = {}, headers = {}) {
+  sendJson(
+    res,
+    statusCode,
+    {
+      status: "error",
+      error_code: errorCode,
+      message,
+      ...details
+    },
+    headers
+  );
+}

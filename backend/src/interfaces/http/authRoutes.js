@@ -1,4 +1,4 @@
-import { fail, ok, readJsonBody } from "./http.js";
+import { fail, failWithDetails, ok, readJsonBody } from "./http.js";
 
 function getClientIp(req) {
   const forwarded = req.headers["x-forwarded-for"];
@@ -74,7 +74,33 @@ export function createAuthRoutes({ authService }) {
       return true;
     }
 
+    if (req.method === "POST" && req.url === "/api/auth/password/reset-link") {
+      const body = await readJsonBody(req);
+      const result = await authService.requestPasswordResetLink({
+        email: body.email,
+        clientIp: getClientIp(req)
+      });
+
+      if (!result.ok) {
+        if (result.status === 429) {
+          failWithDetails(
+            res,
+            result.status,
+            result.code,
+            result.code,
+            { retryAfterSeconds: result.retryAfterSeconds }
+          );
+          return true;
+        }
+
+        fail(res, result.status, result.code, result.code);
+        return true;
+      }
+
+      ok(res, null);
+      return true;
+    }
+
     return false;
   };
 }
-

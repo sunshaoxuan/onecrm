@@ -6,6 +6,8 @@ const LOCK_TTL_MS = 30 * 60 * 1000;
 const MAX_FAILED_LOGIN = 5;
 const RATE_WINDOW_MS = 60 * 1000;
 const RATE_LIMIT_PER_IP = 10;
+const PASSWORD_RESET_WINDOW_MS = 60 * 60 * 1000;
+const PASSWORD_RESET_LIMIT_PER_IP = 5;
 
 function now() {
   return Date.now();
@@ -31,14 +33,22 @@ export class AuthService {
         id: "u_001",
         username: process.env.ONECRM_ADMIN_USERNAME || "admin",
         password: process.env.ONECRM_ADMIN_PASSWORD || "secret_password",
+        email: process.env.ONECRM_ADMIN_EMAIL || "admin@onecrm.local",
         displayName: "Administrator",
         roles: ["admin"]
       }
     ];
+    this.passwordResetSender =
+      options.passwordResetSender ||
+      (async () => ({
+        accepted: true
+      }));
     this.accessTokenStore = new Map();
     this.refreshTokenStore = new Map();
     this.failedLoginStore = new Map();
     this.rateLimitStore = new Map();
+    this.passwordResetRateLimitStore = new Map();
+    this.passwordResetTokenStore = new Map();
   }
 
   normalizeUsername(username) {
@@ -124,6 +134,78 @@ export class AuthService {
     };
     // eslint-disable-next-line no-console
     console.log(JSON.stringify(log));
+  }
+
+  normalizeEmail(email) {
+    return typeof email === "string" ? email.trim().toLowerCase() : "";
+  }
+
+  validateEmailInput(email) {
+    const normalized = this.normalizeEmail(email);
+    if (!normalized) {
+      return { ok: false, code: "AUTH_EMAIL_REQUIRED" };
+    }
+
+    if (normalized.length > 255) {
+      return { ok: false, code: "AUTH_EMAIL_INVALID" };
+    }
+
+    const basicEmailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!basicEmailPattern.test(normalized)) {
+      return { ok: false, code: "AUTH_EMAIL_INVALID" };
+    }
+
+    return { ok: true, email: normalized };
+  }
+
+  hashEmail(email) {
+    return crypto.createHash("sha256").update(email).digest("hex");
+  }
+
+  checkPasswordResetRateLimit(clientIp) {
+    const key = clientIp || "unknown";
+    const current = now();
+    const record = this.passwordResetRateLimitStore.get(key);
+
+    if (!record || current - record.windowStartAt > PASSWORD_RESET_WINDOW_MS) {
+      this.passwordResetRateLimitStore.set(key, { count: 1, windowStartAt: current });
+      return { ok: true };
+    }
+
+    if (record.count >= PASSWORD_RESET_LIMIT_PER_IP) {
+      const retryAfterSeconds = Math.max(
+        1,
+        Math.ceil((record.windowStartAt + PASSWORD_RESET_WINDOW_MS - current) / 1000)
+      );
+      return { ok: false, code: "AUTH_RATE_LIMITED", retryAfterSeconds };
+    }
+
+    record.count += 1;
+    this.passwordResetRateLimitStore.set(key, record);
+    return { ok: true };
+  }
+
+  logPasswordResetAudit({ email, clientIp, status, errorCode }) {
+    const log = {
+      event: "AUTH_PASSWORD_RESET_LINK",
+      email_hash: this.hashEmail(email),
+      client_ip: clientIp || "unknown",
+      status,
+      error_code: errorCode || null,
+      timestamp: new Date().toISOString()
+    };
+    // eslint-disable-next-line no-console
+    console.log(JSON.stringify(log));
+  }
+
+  issuePasswordResetToken(user) {
+    const token = `prk_${crypto.randomBytes(24).toString("hex")}`;
+    this.passwordResetTokenStore.set(token, {
+      userId: user.id,
+      email: user.email,
+      createdAt: now()
+    });
+    return token;
   }
 
   issueTokens(user) {
@@ -267,5 +349,61 @@ export class AuthService {
     const user = this.getCurrentUser(accessToken);
     return user.ok && Array.isArray(user.data.roles) && user.data.roles.includes("admin");
   }
-}
 
+  async requestPasswordResetLink({ email, clientIp }) {
+    const input = this.validateEmailInput(email);
+    if (!input.ok) {
+      return { ok: false, status: 400, code: input.code };
+    }
+
+    const rate = this.checkPasswordResetRateLimit(clientIp);
+    if (!rate.ok) {
+      this.logPasswordResetAudit({
+        email: input.email,
+        clientIp,
+        status: "error",
+        errorCode: rate.code
+      });
+      return {
+        ok: false,
+        status: 429,
+        code: rate.code,
+        retryAfterSeconds: rate.retryAfterSeconds
+      };
+    }
+
+    const user = this.users.find((candidate) => this.normalizeEmail(candidate.email) === input.email);
+    if (!user) {
+      this.logPasswordResetAudit({
+        email: input.email,
+        clientIp,
+        status: "success"
+      });
+      return { ok: true, data: null };
+    }
+
+    const token = this.issuePasswordResetToken(user);
+    try {
+      await this.passwordResetSender({
+        email: input.email,
+        token,
+        userId: user.id
+      });
+    } catch {
+      this.logPasswordResetAudit({
+        email: input.email,
+        clientIp,
+        status: "error",
+        errorCode: "SYS_INTERNAL_ERROR"
+      });
+      return { ok: false, status: 500, code: "SYS_INTERNAL_ERROR" };
+    }
+
+    this.logPasswordResetAudit({
+      email: input.email,
+      clientIp,
+      status: "success"
+    });
+    return { ok: true, data: null };
+  }
+}

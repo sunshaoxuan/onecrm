@@ -24,7 +24,10 @@ export function createApp(options = {}) {
     autoCreateBucket: options.s3AutoCreateBucket
   });
   const cache = new InMemoryCache();
-  const authService = new AuthService();
+  const authService = new AuthService({
+    users: options.authUsers,
+    passwordResetSender: options.passwordResetSender
+  });
   const setupService = new SetupService({
     initialized: options.setupInitialized,
     maintenance: options.setupMaintenance

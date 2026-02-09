@@ -5,13 +5,14 @@ import os from "node:os";
 import { mkdtemp, rm } from "node:fs/promises";
 import { createApp } from "../src/app.js";
 
-async function startServer() {
+async function startServer(options = {}) {
   const tempDir = await mkdtemp(path.join(os.tmpdir(), "onecrm-backend-"));
   const dataFilePath = path.join(tempDir, "i18n-store.json");
   const server = createApp({
     dataFilePath,
     setupInitialized: true,
-    setupMaintenance: false
+    setupMaintenance: false,
+    ...options
   });
 
   await new Promise((resolve) => server.listen(0, resolve));
@@ -193,6 +194,102 @@ test("POST /api/auth/logout requires bearer", async () => {
   await app.close();
 });
 
+test("POST /api/auth/password/reset-link returns success for registered email", async () => {
+  const app = await startServer();
+  const response = await fetch(`${app.baseUrl}/api/auth/password/reset-link`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ email: "admin@onecrm.local" })
+  });
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.status, "success");
+  assert.equal(body.data, null);
+  await app.close();
+});
+
+test("POST /api/auth/password/reset-link returns success for unknown email", async () => {
+  const app = await startServer();
+  const response = await fetch(`${app.baseUrl}/api/auth/password/reset-link`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ email: "unknown@example.com" })
+  });
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.status, "success");
+  assert.equal(body.data, null);
+  await app.close();
+});
+
+test("POST /api/auth/password/reset-link validates email", async () => {
+  const app = await startServer();
+  const emptyEmail = await fetch(`${app.baseUrl}/api/auth/password/reset-link`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ email: "" })
+  });
+  assert.equal(emptyEmail.status, 400);
+  const emptyBody = await emptyEmail.json();
+  assert.equal(emptyBody.error_code, "AUTH_EMAIL_REQUIRED");
+
+  const invalidEmail = await fetch(`${app.baseUrl}/api/auth/password/reset-link`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ email: "invalid" })
+  });
+  assert.equal(invalidEmail.status, 400);
+  const invalidBody = await invalidEmail.json();
+  assert.equal(invalidBody.error_code, "AUTH_EMAIL_INVALID");
+
+  await app.close();
+});
+
+test("POST /api/auth/password/reset-link returns 429 with retryAfterSeconds", async () => {
+  const app = await startServer();
+  for (let i = 0; i < 5; i += 1) {
+    const okResponse = await fetch(`${app.baseUrl}/api/auth/password/reset-link`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email: "admin@onecrm.local" })
+    });
+    assert.equal(okResponse.status, 200);
+  }
+
+  const limited = await fetch(`${app.baseUrl}/api/auth/password/reset-link`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ email: "admin@onecrm.local" })
+  });
+  assert.equal(limited.status, 429);
+  const limitedBody = await limited.json();
+  assert.equal(limitedBody.error_code, "AUTH_RATE_LIMITED");
+  assert.equal(typeof limitedBody.retryAfterSeconds, "number");
+  assert.equal(limitedBody.retryAfterSeconds > 0, true);
+
+  await app.close();
+});
+
+test("POST /api/auth/password/reset-link returns 500 when sender fails", async () => {
+  const app = await startServer({
+    passwordResetSender: async () => {
+      throw new Error("mail service unavailable");
+    }
+  });
+
+  const response = await fetch(`${app.baseUrl}/api/auth/password/reset-link`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ email: "admin@onecrm.local" })
+  });
+  assert.equal(response.status, 500);
+  const body = await response.json();
+  assert.equal(body.error_code, "SYS_INTERNAL_ERROR");
+  await app.close();
+});
+
 test("GET /api/i18n/resources is public and supports etag", async () => {
   const app = await startServer();
   const first = await fetch(`${app.baseUrl}/api/i18n/resources?lang=ja`);
@@ -263,6 +360,39 @@ test("POST /api/i18n/resources requires admin bearer and supports batch upsert",
   await app.close();
 });
 
+test("GET /api/i18n/resources returns forget namespace for PROD-08 keys", async () => {
+  const app = await startServer();
+  const loginResponse = await login(app.baseUrl);
+  const loginBody = await loginResponse.json();
+  const accessToken = loginBody.data.accessToken;
+
+  const saveResponse = await fetch(`${app.baseUrl}/api/i18n/resources`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      Authorization: `Bearer ${accessToken}`
+    },
+    body: JSON.stringify({
+      lang: "en",
+      force: false,
+      module: "forget",
+      items: {
+        LBL_FORGET_PAGE_TITLE: "Reset Password",
+        ERR_FORGET_RATE_LIMITED: "Retry in {{seconds}} seconds"
+      }
+    })
+  });
+  assert.equal(saveResponse.status, 200);
+
+  const resources = await fetch(`${app.baseUrl}/api/i18n/resources?lang=en`);
+  assert.equal(resources.status, 200);
+  const body = await resources.json();
+  assert.equal(body.data.forget.page_title, "Reset Password");
+  assert.equal(body.data.forget.rate_limited, "Retry in {{seconds}} seconds");
+
+  await app.close();
+});
+
 test("POST /api/i18n/resources returns 403 without admin bearer", async () => {
   const app = await startServer();
   const response = await fetch(`${app.baseUrl}/api/i18n/resources`, {
@@ -287,6 +417,22 @@ test("POST /api/i18n/resources returns protected key conflict when force=false",
   const loginResponse = await login(app.baseUrl);
   const loginBody = await loginResponse.json();
   const accessToken = loginBody.data.accessToken;
+
+  const firstInsert = await fetch(`${app.baseUrl}/api/i18n/resources`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      Authorization: `Bearer ${accessToken}`
+    },
+    body: JSON.stringify({
+      lang: "zh",
+      force: true,
+      items: {
+        APP_TITLE: "OneCRM"
+      }
+    })
+  });
+  assert.equal(firstInsert.status, 200);
 
   const response = await fetch(`${app.baseUrl}/api/i18n/resources`, {
     method: "POST",
