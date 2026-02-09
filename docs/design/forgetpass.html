@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Password Recovery | CRM Premium</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen flex flex-col font-display">
+    <!-- Top Navigation Bar -->
+    <header
+        class="w-full flex items-center justify-between border-b border-solid border-slate-200 dark:border-[#233648] px-6 py-4 md:px-10 lg:px-20 bg-background-light dark:bg-background-dark">
+        <div class="flex items-center gap-3">
+            <div class="text-primary flex items-center justify-center">
+                <svg class="size-7" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <path clip-rule="evenodd"
+                        d="M12.0799 24L4 19.2479L9.95537 8.75216L18.04 13.4961L18.0446 4H29.9554L29.96 13.4961L38.0446 8.75216L44 19.2479L35.92 24L44 28.7521L38.0446 39.2479L29.96 34.5039L29.9554 44H18.0446L18.04 34.5039L9.95537 39.2479L4 28.7521L12.0799 24Z"
+                        fill="currentColor" fill-rule="evenodd"></path>
+                </svg>
+            </div>
+            <h2 class="text-lg font-bold leading-tight tracking-tight">CRM Premium</h2>
+        </div>
+        <div class="flex gap-4">
+            <button
+                class="hidden sm:flex cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-slate-200 dark:bg-[#233648] text-sm font-bold transition-colors hover:bg-slate-300 dark:hover:bg-[#2d465d]">
+                <span>Support</span>
+            </button>
+            <button
+                class="flex cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold transition-opacity hover:opacity-90">
+                <span>Sign Up</span>
+            </button>
+        </div>
+    </header>
+    <!-- Main Content: Centered Recovery Card -->
+    <main class="flex-1 flex items-center justify-center px-4 py-12">
+        <div
+            class="w-full max-w-[480px] bg-white dark:bg-[#161e27] p-8 md:p-10 rounded-xl shadow-xl border border-slate-100 dark:border-[#233648]">
+            <!-- Icon/Brand Visual -->
+            <div class="flex justify-center mb-6">
+                <div class="size-16 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-primary text-3xl">lock_reset</span>
+                </div>
+            </div>
+            <!-- Headline Section -->
+            <div class="text-center mb-8">
+                <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-3">
+                    Reset Your Password
+                </h1>
+                <p class="text-slate-500 dark:text-slate-400 text-sm md:text-base leading-relaxed">
+                    Enter the email address associated with your account. We'll send you a secure link to reset your
+                    password.
+                </p>
+            </div>
+            <!-- Form Section -->
+            <form class="space-y-6" onsubmit="return false;">
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 px-1" for="email">
+                        Email Address
+                    </label>
+                    <input
+                        class="w-full rounded-lg text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary border border-slate-300 dark:border-[#324d67] bg-white dark:bg-[#192633] h-14 placeholder:text-slate-400 dark:placeholder:text-[#92adc9] px-4 text-base transition-all"
+                        id="email" placeholder="name@company.com" required="" type="email" />
+                </div>
+                <!-- Primary Action Button -->
+                <button
+                    class="w-full flex items-center justify-center rounded-lg h-14 px-6 bg-primary text-white text-base font-bold tracking-wide transition-all hover:shadow-lg hover:shadow-primary/20 active:scale-[0.98]"
+                    type="submit">
+                    <span>Send Reset Link</span>
+                </button>
+            </form>
+            <!-- Navigation Back -->
+            <div class="mt-8 pt-6 border-t border-slate-100 dark:border-[#233648] text-center">
+                <a class="inline-flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors group"
+                    href="#">
+                    <span
+                        class="material-symbols-outlined text-lg transition-transform group-hover:-translate-x-1">arrow_back</span>
+                    Back to Login
+                </a>
+            </div>
+        </div>
+    </main>
+    <!-- Footer Decoration -->
+    <footer class="py-8 text-center text-xs text-slate-400 dark:text-slate-600">
+        <p>© 2024 CRM Premium. All rights reserved.</p>
+        <div class="mt-2 flex justify-center gap-4">
+            <a class="hover:underline" href="#">Privacy Policy</a>
+            <a class="hover:underline" href="#">Terms of Service</a>
+        </div>
+    </footer>
+</body>
+
+</html>

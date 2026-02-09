@@ -1,0 +1,38 @@
+services:
+  onecrm-minio:
+    image: minio/minio:latest
+    container_name: onecrm-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: onecrm_admin
+      MINIO_ROOT_PASSWORD: onecrm_admin_2026
+    ports:
+      - "19200:9000"
+      - "19201:9001"
+    volumes:
+      - onecrm_minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  onecrm-minio-init:
+    image: minio/mc:latest
+    container_name: onecrm-minio-init
+    depends_on:
+      onecrm-minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set onecrm http://onecrm-minio:9000 onecrm_admin onecrm_admin_2026 &&
+      mc mb --ignore-existing onecrm/onecrm-backend &&
+      mc anonymous set none onecrm/onecrm-backend
+      "
+    restart: "no"
+
+volumes:
+  onecrm_minio_data:
+

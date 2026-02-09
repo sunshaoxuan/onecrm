@@ -1,256 +1,213 @@
 import React, { useState, useEffect } from 'react';
 import { ConfigProvider } from 'antd';
+import CustomerPortal from './pages/CustomerPortal';
+import Sidebar from './components/Sidebar';
+import Header from './components/Header';
+import { Customer } from './types';
+import './styles/bob-theme.css';
+import './styles/bob-auth.css';
+
+// Mock i18n resources (Target for Backend: GET /api/i18n/resources?lang=ja)
+const resources = {
+    app: {
+        title: "OneCRM",
+        copyright: "© 2026 OneCRM Inc. All Rights Reserved."
+    },
+    auth: {
+        eyebrow: "セキュアアクセス", // SECURE ACCESS
+        slogan: {
+            main: "チームをつなぎ、\n成長を加速する", // Connect Teams, Accelerate Growth
+            sub: "最新のビジネス管理とコラボレーションのためのプラットフォーム" // Platform for...
+        },
+        panel: {
+            brand: "ワークスペースへログイン", // Login to Workspace
+            welcome: "おかえりなさい", // WELCOME BACK
+            title: "ログイン", // Login
+            username_label: "ユーザー名またはメール",
+            username_hint: "有効なアカウントを入力してください", // Fixed Chinese "有效期内账号"
+            password_label: "パスワード",
+            login_button: "ログイン",
+            divider: "または", // OR
+            footer_promo: "関係をもっとスマートに、協働をもっと自然に。",
+            no_account: "アカウントがありませんか？",
+            register: "登録"
+        },
+        languages: {
+            zh: "中文",
+            ja: "日本語",
+            en: "EN"
+        }
+    }
+};
 
 const App: React.FC = () => {
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [remember, setRemember] = useState(false);
-    const [currentSlide, setCurrentSlide] = useState(0);
+    const [heroImageIndex, setHeroImageIndex] = useState(0);
 
-    const sliderImages = [
-        '/assets/slider/bridge01.jpg',
-        '/assets/slider/fujisann01.jpg',
-        '/assets/slider/link01.jpg',
-        '/assets/slider/sea01.jpg',
-        '/assets/slider/tokyo01.jpg',
+    const heroImages = [
+        "/images/slider/tokyo01.jpg",
+        "/images/slider/fujisann01.jpg"
     ];
 
     useEffect(() => {
-        const timer = setInterval(() => {
-            setCurrentSlide((prev) => (prev + 1) % sliderImages.length);
+        const interval = setInterval(() => {
+            setHeroImageIndex(prev => (prev + 1) % heroImages.length);
         }, 5000);
-        return () => clearInterval(timer);
-    }, [sliderImages.length]);
+        return () => clearInterval(interval);
+    }, []);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
-        console.log({ email, password, remember });
+        console.log('Login attempt', { email, password });
+        setIsLoggedIn(true);
     };
+
+    if (!isLoggedIn) {
+        return (
+            <ConfigProvider theme={{ token: { colorPrimary: '#3f7cff', borderRadius: 8 } }}>
+                <div className="auth-shell has-hero-image">
+                    <div className="auth-hero-brand-floating">{resources.app.title}</div>
+
+                    <section className="auth-hero">
+                        {heroImages.map((src, index) => (
+                            <img
+                                key={src}
+                                className={`auth-hero-bg ${index === heroImageIndex ? 'show' : ''}`}
+                                src={src}
+                                alt="Hero background"
+                            />
+                        ))}
+                        <div className="auth-hero-overlay"></div>
+
+                        <p className="auth-eyebrow">{resources.auth.eyebrow}</p>
+                        <h1 className="whitespace-pre-line">{resources.auth.slogan.main}</h1>
+                        <p className="auth-hero-subtitle">{resources.auth.slogan.sub}</p>
+                    </section>
+
+                    <section className="auth-panel">
+                        <header className="auth-panel-header">
+                            <div className="auth-brand">{resources.auth.panel.brand}</div>
+                            <div className="auth-lang-toggle">
+                                <button>{resources.auth.languages.zh}</button>
+                                <button className="active">{resources.auth.languages.ja}</button>
+                                <button>{resources.auth.languages.en}</button>
+                            </div>
+                        </header>
+
+                        <div className="auth-panel-body">
+                            <p className="auth-eyebrow text-center">{resources.auth.panel.welcome}</p>
+                            <div className="auth-form-header">
+                                <h2>{resources.auth.panel.title}</h2>
+                            </div>
+
+                            <form className="auth-form" onSubmit={handleLogin}>
+                                <div className="auth-field">
+                                    <div className="auth-field-header">
+                                        <label>{resources.auth.panel.username_label}</label>
+                                        <span className="auth-field-hint">{resources.auth.panel.username_hint}</span>
+                                    </div>
+                                    <input
+                                        className="field-control"
+                                        type="email"
+                                        placeholder="admin"
+                                        value={email}
+                                        onChange={e => setEmail(e.target.value)}
+                                    />
+                                </div>
+                                <div className="auth-field">
+                                    <label>{resources.auth.panel.password_label}</label>
+                                    <input
+                                        className="field-control"
+                                        type="password"
+                                        value={password}
+                                        onChange={e => setPassword(e.target.value)}
+                                    />
+                                </div>
+                                <button type="submit">{resources.auth.panel.login_button}</button>
+                            </form>
+
+                            <div className="auth-divider">
+                                <span>{resources.auth.panel.divider}</span>
+                            </div>
+
+                            <div className="auth-social">
+                                <button type="button" className="btn-social google">
+                                    <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M17.64 9.20455C17.64 8.56636 17.5827 7.95273 17.4764 7.36364H9V10.845H13.8436C13.635 11.97 13.0009 12.9232 12.0477 13.5614V15.8195H14.9564C16.6582 14.2527 17.64 11.9455 17.64 9.20455Z" fill="#4285F4" />
+                                        <path d="M9 18C11.43 18 13.4673 17.1941 14.9564 15.8195L12.0477 13.5614C11.2418 14.1014 10.2109 14.4205 9 14.4205C6.65591 14.4205 4.67182 12.8373 3.96409 10.71H0.957275V13.0418C2.43818 15.9832 5.48182 18 9 18Z" fill="#34A853" />
+                                        <path d="M3.96409 10.71C3.78409 10.17 3.68182 9.59318 3.68182 9C3.68182 8.40682 3.78409 7.83 3.96409 7.29V4.95818H0.957275C0.347727 6.17318 0 7.54773 0 9C0 10.4523 0.347727 11.8268 0.957275 13.0418L3.96409 10.71Z" fill="#FBBC05" />
+                                        <path d="M9 3.57955C10.3214 3.57955 11.5077 4.03364 12.4405 4.92545L14.9891 2.37682C13.4673 0.957273 11.43 0 9 0C5.48182 0 2.43818 2.01682 0.957275 4.95818L3.96409 7.29C4.67182 5.16273 6.65591 3.57955 9 3.57955Z" fill="#EA4335" />
+                                    </svg>
+                                    Google
+                                </button>
+                                <button type="button" className="btn-social microsoft">
+                                    <svg width="18" height="18" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="1" y="1" width="9" height="9" fill="#F25022" />
+                                        <rect x="11" y="1" width="9" height="9" fill="#7FBA00" />
+                                        <rect x="1" y="11" width="9" height="9" fill="#00A4EF" />
+                                        <rect x="11" y="11" width="9" height="9" fill="#FFB900" />
+                                    </svg>
+                                    Microsoft
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="auth-promo">
+                            {resources.auth.panel.footer_promo}<br />
+                            {resources.auth.panel.no_account} <a href="#">{resources.auth.panel.register}</a>
+                        </div>
+
+                        <footer className="auth-panel-footer">
+                            <div className="auth-copyright">
+                                {resources.app.copyright}
+                            </div>
+                        </footer>
+                    </section>
+                </div>
+            </ConfigProvider >
+        );
+    }
 
     return (
         <ConfigProvider
             theme={{
                 token: {
-                    colorPrimary: '#FD6C26',
-                    borderRadius: 4,
+                    colorPrimary: '#3f7cff',
+                    borderRadius: 12,
+                    fontFamily: 'Inter, system-ui, sans-serif',
                 },
+                components: {
+                    Tabs: {
+                        titleFontSize: 16,
+                        fontWeightStrong: 900,
+                        horizontalMargin: '0 0 32px 0',
+                    }
+                }
             }}
         >
-            <div className="bg-[#FFFFFF] font-display min-h-screen flex flex-col overflow-x-hidden text-slate-900">
-                {/* Header */}
-                <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-4 md:py-6 bg-white/80 backdrop-blur-md border-b border-slate-100 shadow-sm">
-                    <div className="flex items-center gap-3 md:gap-4 select-none">
-                        {/* Box 1: Independent Icon Container */}
-                        <div className="size-9 md:size-11 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/20 flex-shrink-0">
-                            <svg className="size-5 md:size-7" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                                <path clipRule="evenodd" d="M12.0799 24L4 19.2479L9.95537 8.75216L18.04 13.4961L18.0446 4H29.9554L29.96 13.4961L38.0446 8.75216L44 19.2479L35.92 24L44 28.7521L38.0446 39.2479L29.96 34.5039L29.9554 44H18.0446L18.04 34.5039L9.95537 39.2479L4 28.7521L12.0799 24Z" fill="currentColor" fillRule="evenodd"></path>
-                            </svg>
-                        </div>
-                        {/* Box 2: Independent Text Container */}
-                        <h2 className="m-0 p-0 text-xl md:text-3xl font-black tracking-tighter uppercase leading-none text-slate-900">
-                            O<span className="text-[0.95em] lowercase">ne</span>CRM
-                        </h2>
-                    </div>
-                    <div className="flex items-center gap-4 md:gap-8">
-                        {/* Internal system: Product/Solution/Price links removed */}
-                        <div className="flex items-center gap-2 text-[10px] md:text-xs font-bold text-slate-400">
-                            <span className="material-symbols-outlined text-[16px] md:text-[18px]">language</span>
-                            <span className="text-primary cursor-pointer">JP</span>
-                            <span className="opacity-30">|</span>
-                            <button className="hover:text-primary transition-colors">EN</button>
-                            <span className="opacity-30">|</span>
-                            <button className="hover:text-primary transition-colors">CN</button>
-                        </div>
-                    </div>
-                </header>
-
-                <main className="flex-1 flex flex-col md:flex-row min-h-screen pt-16 md:pt-20">
-                    {/* Hero Section - Dynamic & Expansive (PC prioritized) */}
-                    <section className="relative w-full md:w-3/5 min-h-[50vh] md:min-h-screen flex flex-col px-6 sm:px-12 md:px-20 pt-20 md:pt-32 bg-[#F8FAFC] overflow-hidden">
-                        {/* Dynamic Image Slider - Full Background Layout */}
-                        <div className="absolute inset-0 z-0">
-                            <div className="relative w-full h-full overflow-hidden">
-                                {sliderImages.map((src, index) => (
-                                    <div
-                                        key={src}
-                                        className={`absolute inset-0 transition-opacity duration-[2000ms] ease-in-out ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
-                                    >
-                                        <div
-                                            className="w-full h-full bg-cover bg-center"
-                                            style={{ backgroundImage: `url("${src}")` }}
-                                        ></div>
-                                        {/* Seamless Integration Overlays - Fading into #F8FAFC (Bottom Only) */}
-                                        <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#F8FAFC] to-transparent"></div>
-                                    </div>
-                                ))}
-
-                                {/* Subtle pattern layer on top of images for texture */}
-                                <div className="absolute inset-0 opacity-[0.05] z-10" style={{ backgroundImage: 'radial-gradient(#FD6C26 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
+            <div className="flex h-screen bg-[#F8FAFC] overflow-hidden">
+                <Sidebar
+                    collapsed={false}
+                    onToggle={() => { }}
+                    onSelectCustomer={setSelectedCustomer}
+                />
+                <div className="flex-1 flex flex-col min-w-0">
+                    <Header />
+                    <main className="flex-1 overflow-y-auto p-12">
+                        {selectedCustomer ? (
+                            <CustomerPortal customer={selectedCustomer} />
+                        ) : (
+                            <div className="h-full flex flex-col items-center justify-center text-center opacity-20">
+                                <span className="material-symbols-outlined text-[120px] mb-4">account_circle</span>
+                                <h3 className="text-4xl font-black">お客様を選択してください</h3>
+                                <p className="text-xl font-bold">左側のリストからお客様を選択して情報を表示します</p>
                             </div>
-                        </div>
-
-                        <div className="relative z-20 max-w-2xl">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/15 text-primary text-[9px] md:text-[10px] font-bold uppercase tracking-wider mb-6 md:mb-10">
-                                <span className="relative flex h-2 w-2">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                                </span>
-                                v3.0 Intelligent Update
-                            </div>
-                            <h1 className="text-white text-4xl sm:text-5xl md:text-7xl font-black leading-[1.1] tracking-tighter mb-6 md:mb-10">
-                                散らばる営みを<br />
-                                ひとつの流れへ
-                            </h1>
-                            <p className="text-white text-base md:text-2xl font-bold leading-relaxed mb-8 md:mb-16 max-w-lg">
-                                秩序が生まれ、未来の輪郭が立ち上がる
-                            </p>
-                        </div>
-
-                        {/* Dynamic Image Slider - Bottom Spread Layout */}
-                        {/* Floating Metrics Overlay - Positioned for balance over the background */}
-                        <div className="absolute bottom-24 left-6 md:left-20 flex flex-col md:flex-row items-start md:items-center gap-4 z-20">
-                            <div className="flex -space-x-3">
-                                {[1, 2, 3, 4].map((i) => (
-                                    <img
-                                        key={i}
-                                        alt="User"
-                                        className="w-12 h-12 md:w-16 md:h-16 rounded-full border-2 border-white shadow-xl flex-shrink-0"
-                                        src={`https://i.pravatar.cc/150?u=${i + 20}`}
-                                    />
-                                ))}
-                            </div>
-                            <div className="flex items-center gap-2 md:gap-4 text-slate-800 text-xs md:text-xl font-black bg-white/95 backdrop-blur-2xl px-5 md:px-10 py-3 md:py-6 rounded-2xl md:rounded-3xl border border-white/50 shadow-2xl">
-                                <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-primary animate-pulse"></div>
-                                <span>業務効率 42% 向上</span>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Login Section - Workbench prioritized */}
-                    <section className="w-full md:w-2/5 flex flex-col items-center justify-center bg-white px-6 sm:px-12 md:px-16 py-16 md:py-20 relative">
-                        <div className="w-full max-w-[380px] md:max-w-[420px]">
-                            <div className="mb-8 md:mb-14 text-center md:text-left">
-                                <div className="text-primary font-bold text-sm uppercase tracking-widest mb-2 opacity-80">Welcome Back</div>
-                                <h2 className="text-slate-900 text-3xl md:text-4xl font-black tracking-tight mb-2 md:mb-4">おかえりなさい</h2>
-                                <p className="text-slate-500 text-sm md:text-base font-medium">OneCRMのアカウント情報を入力してください</p>
-                            </div>
-
-                            <form className="space-y-4 md:space-y-8" onSubmit={handleSubmit}>
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-slate-900 text-xs md:text-sm font-bold px-1 uppercase tracking-wider opacity-60">メールアドレス</label>
-                                    <div className="relative group">
-                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
-                                            <span className="material-symbols-outlined text-[18px] md:text-[22px]">mail</span>
-                                        </div>
-                                        <input
-                                            className="w-full pl-12 pr-4 py-3.5 md:py-5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all placeholder:text-slate-400/60 text-sm md:text-lg font-medium"
-                                            placeholder="name@company.com"
-                                            type="email"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <div className="flex justify-between items-center px-1">
-                                        <label className="text-slate-900 text-xs md:text-sm font-bold uppercase tracking-wider opacity-60">パスワード</label>
-                                        <a className="text-primary text-[10px] md:text-xs font-bold hover:underline" href="#">パスワードをお忘れですか？</a>
-                                    </div>
-                                    <div className="relative group">
-                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
-                                            <span className="material-symbols-outlined text-[18px] md:text-[22px]">lock</span>
-                                        </div>
-                                        <input
-                                            className="w-full pl-12 pr-12 py-3.5 md:py-5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all placeholder:text-slate-400/60 text-sm md:text-lg font-medium"
-                                            placeholder="••••••••"
-                                            type="password"
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
-                                        />
-                                        <button className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-primary transition-colors" type="button">
-                                            <span className="material-symbols-outlined text-[18px] md:text-[22px]">visibility</span>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-2 px-1">
-                                    <input
-                                        className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary transition-colors cursor-pointer"
-                                        id="remember"
-                                        type="checkbox"
-                                        checked={remember}
-                                        onChange={(e) => setRemember(e.target.checked)}
-                                    />
-                                    <label className="text-xs md:text-sm text-slate-500 select-none cursor-pointer font-bold" htmlFor="remember">ログイン状態を維持する</label>
-                                </div>
-
-                                <button
-                                    className="w-full flex items-center justify-center gap-2 h-12 md:h-16 rounded-xl bg-gradient-to-r from-primary to-[#cc561d] text-white font-black text-sm md:text-lg shadow-xl shadow-primary/30 hover:shadow-primary/40 active:scale-[0.98] transition-all uppercase tracking-widest"
-                                    type="submit"
-                                >
-                                    <span>サインイン</span>
-                                    <span className="material-symbols-outlined text-[18px] md:text-[22px]">arrow_forward</span>
-                                </button>
-                            </form>
-
-                            <div className="relative my-8 md:my-14">
-                                <div className="absolute inset-0 flex items-center">
-                                    <span className="w-full border-t border-slate-100"></span>
-                                </div>
-                                <div className="relative flex justify-center text-[10px] md:text-xs uppercase tracking-[0.2em]">
-                                    <span className="bg-white px-5 text-slate-400 font-extrabold">OR CONTINUE WITH</span>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-3 md:gap-5">
-                                <button className="flex items-center justify-center gap-2 h-11 md:h-14 rounded-xl border border-slate-200 bg-white text-[13px] md:text-base font-bold text-slate-900 hover:bg-slate-50 transition-colors shadow-sm">
-                                    <svg className="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
-                                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
-                                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"></path>
-                                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 12-4.53z" fill="#EA4335"></path>
-                                    </svg>
-                                    Google
-                                </button>
-                                <button className="flex items-center justify-center gap-2 h-11 md:h-14 rounded-xl border border-slate-200 bg-white text-[13px] md:text-base font-bold text-slate-900 hover:bg-slate-50 transition-colors shadow-sm">
-                                    <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path>
-                                    </svg>
-                                    GitHub
-                                </button>
-                                <button className="flex items-center justify-center gap-2 h-11 md:h-14 rounded-xl border border-slate-200 bg-white text-[13px] md:text-base font-bold text-slate-900 hover:bg-slate-50 transition-colors shadow-sm">
-                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M7.077 4.552c-1.33 0-2.362 1.078-2.362 2.37 0 1.294 1.032 2.373 2.362 2.373 1.332 0 2.362-1.079 2.362-2.373 0-1.292-1.03-2.37-2.362-2.37zM11.603 12V24H7.135V12h4.468zM12 12V24h4.468V18.15c0-1.545.295-3.045 2.215-3.045 1.892 0 1.918 1.768 1.918 3.142V24H25V17.37c0-3.255-.7-5.755-4.505-5.755-1.828 0-3.048.998-3.548 1.948h-.065V12H12z" />
-                                    </svg>
-                                    Outlook
-                                </button>
-                                <button className="flex items-center justify-center gap-2 h-11 md:h-14 rounded-xl border border-slate-200 bg-white text-[13px] md:text-base font-bold text-slate-900 hover:bg-slate-50 transition-colors shadow-sm font-apple">
-                                    <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M17.05 20.28c-.96.95-2.06 1.34-3.26 1.34-1.22 0-2.14-.38-3.11-.38-.97 0-2.02.39-3.15.39-1.02 0-2.26-.5-3.32-1.56C2.18 18.04 1 15.31 1 12.19c0-3.13 1.57-5.36 4.39-5.36 1.15 0 2.11.45 3 .45.82 0 2.14-.62 3.61-.62 1.43 0 2.82.5 3.77 1.48-2.6 1.53-2.19 5.33.6 6.45-1.03 2.5-2.35 4.69-3.32 5.69zM10.74 3c0 1.63-1.04 3.19-2.58 3.19-.18 0-.36-.02-.51-.05.15-2.13 1.9-3.79 3.09-3.79V3z" />
-                                    </svg>
-                                    Apple
-                                </button>
-                            </div>
-
-                            <div className="mt-12 md:mt-16 text-center">
-                                <p className="text-sm md:text-base text-slate-500 font-bold">
-                                    アカウントをお持ちではありませんか？
-                                    <a className="text-primary font-black ml-2 hover:underline" href="#">新規登録</a>
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="absolute bottom-6 md:bottom-10 text-[9px] md:text-[13px] text-slate-400 flex flex-wrap justify-center gap-4 md:gap-8 px-4 text-center font-bold">
-                            <a className="hover:text-primary transition-colors" href="#">プライバシーポリシー</a>
-                            <a className="hover:text-primary transition-colors" href="#">利用規約</a>
-                            <a className="hover:text-primary transition-colors" href="#">Cookieポリシー</a>
-                            <span className="flex items-center gap-1 opacity-60">
-                                <span className="material-symbols-outlined text-[10px] md:text-[14px]">copyright</span> 2026 OneCRM
-                            </span>
-                        </div>
-                    </section>
-                </main>
+                        )}
+                    </main>
+                </div>
             </div>
         </ConfigProvider>
     );

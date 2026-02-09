@@ -1,0 +1,16 @@
+{
+  "name": "onecrm-backend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.883.0"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "check:compliance": "node scripts/check-compliance.mjs",
+    "test": "node --test",
+    "verify": "npm run check:compliance && npm test"
+  }
+}

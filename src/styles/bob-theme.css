@@ -1,0 +1,86 @@
+/* Minimal, configurable theme for BobCRM (Ant Design friendly)
+   - No logic changes, only styles
+   - Two base themes: light/dark
+   - Primary color is controlled by CSS variable --primary
+*/
+
+:root {
+    --primary: #3f7cff;
+    --primary-contrast: #ffffff;
+
+    --bg: #f6f7fb;
+    --text: #1f2937;
+    --text-primary: #111827;
+    --text-secondary: #374151;
+    --text-muted: #6b7280;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --border-soft: #f3f4f6;
+    --card-bg: #ffffff;
+    --sider-bg: #0b1220;
+    --header-bg: #ffffff;
+    --radius: 8px;
+    --radius-pill: 9999px;
+    --radius-card: 16px;
+    --radius-soft: 8px;
+
+    --shadow: 0 6px 24px rgba(16, 24, 40, .06), 0 2px 4px rgba(16, 24, 40, .03);
+    --shadow-raised: 0 10px 30px rgba(0, 0, 0, 0.08);
+
+    --surface-base: #f8fafc;
+    --surface-glass: rgba(255, 255, 255, 0.7);
+    --surface-elevated: #ffffff;
+
+    --blur-surface: 12px;
+
+    --spacing-1: 4px;
+    --spacing-2: 8px;
+    --spacing-3: 12px;
+    --spacing-4: 16px;
+    --spacing-5: 24px;
+    --spacing-6: 32px;
+    --spacing-7: 48px;
+
+    --font-meta-size: 11px;
+
+    --color-semantic-danger-600: #dc2626;
+}
+
+.theme-dark {
+    --bg: #0f172a;
+    --text: #e5e7eb;
+    --text-primary: #f9fafb;
+    --text-secondary: #d1d5db;
+    --text-muted: #9ca3af;
+    --muted: #9ca3af;
+    --border: #1f2937;
+    --border-soft: #374151;
+    --card-bg: #0b1220;
+    --sider-bg: #0b1220;
+    --header-bg: #0b1220;
+    --shadow: 0 6px 24px rgba(0, 0, 0, .35), 0 2px 4px rgba(0, 0, 0, .25);
+
+    --surface-base: #0f172a;
+    --surface-glass: rgba(15, 23, 42, 0.7);
+    --surface-elevated: #1e293b;
+}
+
+/* OneCRM Logo Brand */
+.logo-brand {
+    padding: 20px 12px 24px;
+    text-align: center;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border-radius: 8px;
+    margin: 0 8px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logo-text {
+    font-size: 32px;
+    font-weight: 800;
+    margin: 0;
+    color: #fff;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 12px rgba(63, 124, 255, 0.6), 0 0 20px rgba(63, 124, 255, 0.4);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
